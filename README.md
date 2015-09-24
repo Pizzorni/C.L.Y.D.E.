@@ -7,7 +7,31 @@ Togelius at NYU Poly. Created by Whitney Mulhern and Giorgio Pizzorni.
 Part 1 of the project will involve implementing every single algorithm
 we learn in class.
 
-## Part 1: TODO
+### TODO
 * Uninformed Search
-  * Depth First Search
-  * Breadth First Search
+  * Breadth First
+  * Uniform Cost
+  * Depth First
+  * Depth Limited
+  * Iterative Deepening
+* Informed Search
+  * Best First
+  * Greedy Best First
+  * A*
+  * Simmulated Annealing
+
+## Part 2
+Part 2 of this project will involve building a system of AIs named C.L.Y.D.E. 
+
+* **C**almly
+* **L**olygagging
+* **Y**et
+* **D**estroying
+* **E**verything
+
+In Pacman, Clyde is the shy orange ghost. He targets Pacman's tile if he is more than 8 blocks away. If he gets too close, he scurries away to his home corner. The current idea is to turn clyde into a killing machine by rewriting the other ghosts' AI so that they force pacman into Clyde's corner. Clyde will eventually get Pacman even though he doesn't want to.
+
+Some are born great, some achieve greatness, and some have greatness thrust upon them.
+
+We will make Clyde great.
+  
