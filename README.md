@@ -10,15 +10,17 @@ we learn in class.
 ### TODO
 * Uninformed Search
   * Breadth First
-  * Uniform Cost
   * Depth First
-  * Depth Limited
   * Iterative Deepening
 * Informed Search
-  * Best First
-  * Greedy Best First
+  * Hill Climber
   * A*
   * Simmulated Annealing
+* Evolutionary Algorithms
+  * Evolution Strategy
+  * Genetic Algorithms
+* Adversarial Search
+  * Alpha Beta Pruning
 
 ## Part 2
 Part 2 of this project will involve building a system of AIs named C.L.Y.D.E. 
