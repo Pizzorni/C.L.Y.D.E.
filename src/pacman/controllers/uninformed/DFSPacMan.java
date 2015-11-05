@@ -12,12 +12,12 @@ public class DFSPacMan extends Controller<MOVE> {
 	
 	Controller<EnumMap<GHOST, MOVE>> spookies;
 	public DFSPacMan(Controller<EnumMap<GHOST, MOVE>> spookies){
-		this.spookies = spookies;
+		this.spookies = spookies; // SPOOKIES 
 	}
 	public MOVE getMove(Game game,long timeDue) {
 		Game[] games = new Game[5];
 		MOVE[] moves = MOVE.values();
-		int maxScore = 0;//game.getScore();
+		int maxScore = 0;//game.getScore();    <------ useful comment
 		int bestMove = 0;
 		int i = 0;
 		for (MOVE move : MOVE.values()){
