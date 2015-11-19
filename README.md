@@ -21,6 +21,13 @@ we learn in class.
   * Genetic Algorithms
 * Adversarial Search
   * Alpha Beta Pruning
+* Supervised Learning
+  * k-Nearest Neighbor
+  * Perceptron
+* Decision Trees
+ * ID3
+* Reinforcement Learning
+  * ???
 
 ## Part 2
 Part 2 of this project will involve building a system of AIs named C.L.Y.D.E. 
