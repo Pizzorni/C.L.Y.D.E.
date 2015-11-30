@@ -13,10 +13,11 @@ import java.util.PriorityQueue;
 /*
  */
 public class Astar extends Controller<MOVE> {
-    private int GHOST_DIST_WT = 100;
-    private int NEAREST_GHOST_WT = 100;
-    private int NUM_PILL_WT = 0;
-    private int DIST_PILL_WT = 10;
+    private int GHOST_DIST_WT = 0;
+    private int NEAREST_GHOST_WT = 1000; //300
+    private int NUM_PILL_WT = 400; //400
+    private int DIST_PILL_WT = 0;
+    private int GHOST_EDIBLE_WT = 5; //5 --> 2359
     private int PILLS_TO_TRACK = 0;
     private int numIters = 2;
 
@@ -60,7 +61,8 @@ public class Astar extends Controller<MOVE> {
         while(bestOverall.getDepth() != numIters){
             bestOverall = evaluatedMoves.remove();
         }
-        for(int i = 0; i < numIters - 1; i++){
+
+        for(int i = 0; i < numIters -1 ; i++){
             bestOverall = bestOverall.getParent();
         }
         return bestOverall.getMove();
@@ -87,8 +89,8 @@ public class Astar extends Controller<MOVE> {
         }
 
         // compute distance to all pills
-        for (int i = 0; i < allPills.length; i++) {
-            int currDist = game.getManhattanDistance(pacmanPos, allPills[i]);
+        for (int i = 0; i < numPills; i++) {
+            int currDist = game.getManhattanDistance(pacmanPos, activePills[i]);
             distToPills.add(currDist);
         }
 
@@ -96,29 +98,45 @@ public class Astar extends Controller<MOVE> {
         int minDistToGhost = Integer.MAX_VALUE;
         int totalDistToGhost = 1;
         int inactiveGhostCount = 0;
+        int minDistToEdible = Integer.MAX_VALUE;
         for (GHOST spookie : GHOST.values()) {
+            int currDist = game.getManhattanDistance(pacmanPos, game.getGhostCurrentNodeIndex(spookie));
             if(game.getGhostEdibleTime(spookie) > 0){
                 inactiveGhostCount++;
+                minDistToEdible = (minDistToGhost > currDist) ? currDist : minDistToGhost;
                 break;
             }
-            int currDist = game.getManhattanDistance(pacmanPos, game.getGhostCurrentNodeIndex(spookie));
+
             totalDistToGhost += currDist;
             minDistToGhost = (minDistToGhost > currDist) ? currDist : minDistToGhost;
         }
 
 
-        if(inactiveGhostCount == 4){
-            minDistToGhost = 1;
+        if(inactiveGhostCount == 0){
+            minDistToEdible = 0;
         }
+        if(inactiveGhostCount == 4){
+            minDistToGhost = 0;
+        }
+
+        if(minDistToGhost < 5){
+            minDistToGhost = 0;
+        }
+        else{
+            minDistToGhost = 100;
+        }
+
 
         int distToClosestPills = 0;
         for(int i = 0; i < PILLS_TO_TRACK; i++){
             distToClosestPills += distToPills.remove();
         }
-        if(totalDistToGhost == 0) totalDistToGhost = 1;
-        if(minDistToGhost == 0) minDistToGhost = 1;
-        return (NUM_PILL_WT * totalPills) + (DIST_PILL_WT * distToClosestPills)
-                + (NEAREST_GHOST_WT * (1/minDistToGhost)) + (GHOST_DIST_WT * (1/(totalDistToGhost)));
+        //int pillWeight = game.getCurrentLevelTime() * (1/10) * NUM_PILL_WT;
+        int eval = (NUM_PILL_WT * totalPills) + //(DIST_PILL_WT * distToClosestPills)
+                + (NEAREST_GHOST_WT * minDistToGhost) + (GHOST_DIST_WT * totalDistToGhost)
+                + (GHOST_EDIBLE_WT * minDistToEdible);
+       // if(eval < 0) eval = 0;
+        return eval;
     }
 }
 
