@@ -22,27 +22,32 @@ public class IterDeepPacMan extends Controller<MOVE> {
     public IterDeepPacMan(Controller<EnumMap<GHOST, MOVE>> spookies) {
         this.spookies = spookies;
     }
+
+    /*
+     * Main funtion for get move
+     *      calls iterativeDeep which calls advanceGame
+     */
     public MOVE getMove(Game game,long timeDue) {
 
-
+        //store moves in a move array
         moves = MOVE.values();
         int i = 0;
-        //store moves in a move array
         for (MOVE move : MOVE.values()){
             moves[i] = move;
             i++;
         }
 
         found = false;
-
         int max_iter = 5;
         int iter_count= 0;
 
+        //create an array of the max number of games possibly needed
         games = new Game[(int)Math.pow(5.0, LEVELS*max_iter)];
         games[0] = game;
         last_score = game.getScore();
 
-
+        //iterate through games in the game array and advance them with each of the 5 moves
+        // call iterative deepening on each
         int j;
         while(!found && iter_count < max_iter) {
             for (j = 0; j <(int)Math.pow(5.0, LEVELS*iter_count); j++){
@@ -54,26 +59,30 @@ public class IterDeepPacMan extends Controller<MOVE> {
             game_num = 0;
         }
 
+        //calculate the best move based on the index into the game array
         int best_move;
         if (found) {
-            //System.out.println("Found");
             //calculate best move
             int game_div = (int)Math.pow(5, LEVELS*iter_count+found_level-2);
-            //System.out.printf("game num: %d -- iter_count: %d -- found_level: %d -- game_div: %d\n",found_game_num, iter_count, found_level, game_div);
             double game_thing = found_game_num/game_div;
-            //System.out.printf("gamething: %f\n", game_thing);
             best_move = (int)game_thing;
-            //best_move = 1;
         }
         else {
-            System.out.println("Not found");
-            //choose random move
+            //choose random move if reach max iters without finding a best move
             best_move = (int)(Math.random()*10)%5;
         }
-        //System.out.printf("choosing move %d\n", best_move);
         return moves[best_move];
     }
 
+    /*
+     *  Iterative Deep
+     *      arguments: game, move, level_count
+     *      for the game passed in, advance each game by each move
+     *      and check if the found condition is met or we have reached
+     *      the level max
+     *      In this case the found condition is that the score has
+     *      advanced by SCORE
+     */
     private void iterativeDeep(Game game, MOVE move, int level_count){
         if (!found) {
             advanceGame(game, move);
@@ -81,7 +90,6 @@ public class IterDeepPacMan extends Controller<MOVE> {
 
             if (score - last_score == SCORE) {
                 found = true;
-                //System.out.printf("FOUND: with game num:%d, score: %d, last score:%d\n", game_num, score, last_score);
                 found_level = level_count;
                 found_game_num = game_num;
             } else if (level_count == LEVELS) {
@@ -95,6 +103,11 @@ public class IterDeepPacMan extends Controller<MOVE> {
         }
     }
 
+    /*
+     *  advanceGame
+     *      arguments: game to advance, move to choose
+     *      Advances a game four times (to the next block) with the same move
+     */
     private void advanceGame(Game game, MOVE move){
         for (int j = 0; j < 4; j++) {
             game.advanceGame(move, spookies.getMove(game, -1));
