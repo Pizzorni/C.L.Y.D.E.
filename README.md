@@ -11,18 +11,18 @@ we learn in class.
 * Uninformed Search
   * Breadth First
   * Depth First
-  * Iterative Deepening
+  * ~~Iterative Deepening~~
 * Informed Search
   * Hill Climber
-  * A*
+  * ~~A*~~
   * Simmulated Annealing
 * Evolutionary Algorithms
   * Evolution Strategy
   * Genetic Algorithms
-* Adversarial Search
-  * Alpha Beta Pruning
+* ~~Adversarial Search~~
+  * ~~Alpha Beta Pruning~~
 * Supervised Learning
-  * k-Nearest Neighbor
+  * ~~k-Nearest Neighbor~~
   * Perceptron
 * Decision Trees
  * ID3
