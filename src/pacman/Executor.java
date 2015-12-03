@@ -64,7 +64,29 @@ public class Executor
 		///*
 		//run the game in asynchronous mode.
 		boolean visual=true;
-		exec.evolutionaryStrategy(5,10,5,visual);
+		int numGen = 5;
+		int popSize = 10;
+		double[] maxes = new double[8];
+		double[] avgs = new double[8];
+		for(int i = 1; i < 5; i ++){
+			double[] ret = exec.evolutionaryStrategy(numGen, popSize, (i * -250 ), (i * 250));
+			maxes[i-1] = ret[0];
+			avgs[i-1] = ret[1];
+		}
+		for(int i = 1; i < 5; i ++){
+			double[] ret = exec.evolutionaryStrategy(numGen, popSize, (i * -25), (i * 25));
+			maxes[i - 1 + 4] = ret[0];
+			avgs [i - 1 + 4] = ret[1];
+		}
+
+		for(int i = 0; i < 5; i++){
+			System.out.println("Range:[" + (i*-250) + "," + (i*250) + "] Max: " + maxes[i] + " Avg: " + avgs[i]);
+		}
+		for(int i = 0; i < 5; i++){
+			System.out.println("Range:[" + (i*-25) + "," + (i*25) + "] Max: " + maxes[i-1+4] + " Avg: " + avgs[i-1+4]);
+		}
+
+		//exec.evolutionaryStrategy(5,10,5,visual);
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 	//	exec.runGameTimed(new DFSPacMan(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
@@ -394,9 +416,9 @@ public class Executor
         return replay;
 	}
 
-    private void evolutionaryStrategy(int generations, int numGames, int numTrials, boolean visual){
-        int rnmin = -500;
-        int rnmax = 500;
+    private double[] evolutionaryStrategy(int generations, int numGames, int min, int max){
+        int rnmin = min;
+        int rnmax = max;
         Game game = new Game(0);
 		Random rn = new Random();
 		int[] genMaxScore = new int[generations];
@@ -407,8 +429,9 @@ public class Executor
         Executor exec = new Executor();
         PriorityQueue<EvolObj> population = new PriorityQueue<>();
 		ArrayList<EvolObj> popToMutate = new ArrayList<>();
-        for(int i = 0; i < numGames; i++){
-            EvolObj temp = new EvolObj(game.copy(),initialSeed(rnmax, rnmin));
+		// Large initial population to add some variance and then smaller mutations
+        for(int i = 0; i < 100; i++){
+            EvolObj temp = new EvolObj(game.copy(),initialSeed(1000, -1000));
             temp.setScore(0);
             population.add(temp);
         }
@@ -456,35 +479,117 @@ public class Executor
 			}
 
         }
+		double allGenMax = 0;
+		double allGenAvg = 0;
 		for(int i = 0; i < generations; i++){
 			System.out.println("Generation " + i + " max score: " + genMaxScore[i] + " avg score: " + genAvgScore[i]);
+			allGenMax = (allGenMax < genMaxScore[i]) ? genMaxScore[i] : allGenMax;
+			allGenAvg += genAvgScore[i];
 		}
+		allGenAvg = allGenAvg/generations;
 
-
-
+		double[] retVals = new double[]{allGenMax, allGenAvg};
+		return retVals;
 
     }
+
+	private double[] simmulatedAnnealing(int generations, int numGames, int min, int max){
+		int rnmin = min;
+		int rnmax = max;
+		Game game = new Game(0);
+		Random rn = new Random();
+		int[] genMaxScore = new int[generations];
+		double[] genAvgScore = new double[generations];
+
+
+
+		Executor exec = new Executor();
+		PriorityQueue<EvolObj> population = new PriorityQueue<>();
+		ArrayList<EvolObj> popToMutate = new ArrayList<>();
+		// Large initial population to add some variance and then smaller mutations
+		for(int i = 0; i < 100; i++){
+			EvolObj temp = new EvolObj(game.copy(),initialSeed(1000, -1000));
+			temp.setScore(0);
+			population.add(temp);
+		}
+
+		for(int j = 0; j < generations; j++){ // number of generations
+			int maxScore = 0;
+			double avgScore = 0;
+			System.out.println("********Generation*******: " + j);
+			int i = 0;
+			for(EvolObj candidate: population){ // for each member of
+				System.out.println("Candidate number: " + i);
+				candidate.setGame(game.copy());
+				Game curGame = candidate.getGame();
+				int[] curWeights = candidate.getWeights();
+				Astar tempController = new Astar(new StarterGhosts(), curWeights, curGame);
+				while(!curGame.gameOver())
+				{
+					curGame.advanceGame(tempController.getMove(curGame.copy(), -1), new StarterGhosts().getMove(game.copy(), -1));
+
+					//try{Thread.sleep(5);}catch(Exception e){}
+
+				}
+				candidate.setScore(curGame.getScore());
+				avgScore += candidate.getScore();
+				maxScore = (maxScore < candidate.getScore()) ? candidate.getScore() : maxScore;
+				i++;
+				System.out.println(candidate.getScore());
+			}
+			genMaxScore[j] = maxScore;
+			genAvgScore[j] = avgScore/numGames;
+
+			// choose the 10 fittest based off score
+			for(int k = 0; k < numGames/2; k++){
+				popToMutate.add(population.remove());
+			}
+			population.clear();
+			for(int k = 0; k < numGames/2; k++){
+				population.add(popToMutate.get(k));
+			}
+			for(int k = 0; k < numGames/2; k++){
+				int index = rn.nextInt(numGames/2);
+				EvolObj mutatee = popToMutate.get(index);
+				mutate(mutatee, rnmax, rnmin);
+				population.add(mutatee);
+			}
+
+		}
+		double allGenMax = 0;
+		double allGenAvg = 0;
+		for(int i = 0; i < generations; i++){
+			System.out.println("Generation " + i + " max score: " + genMaxScore[i] + " avg score: " + genAvgScore[i]);
+			allGenMax = (allGenMax < genMaxScore[i]) ? genMaxScore[i] : allGenMax;
+			allGenAvg += genAvgScore[i];
+		}
+		allGenAvg = allGenAvg/generations;
+
+		double[] retVals = new double[]{allGenMax, allGenAvg};
+		return retVals;
+
+	}
 
     public void mutate(EvolObj state, int rnmax, int rnmin){
         Random rn = new Random();
         int[] newWeights = new int[8];
         int[] oldWeights = state.getWeights();
         for(int i = 0; i < 8; i++){
-            newWeights[i] = oldWeights[i] + rn.nextInt(rnmax - rnmin + 1) + rnmin;
+            newWeights[i] = oldWeights[i] + (rn.nextInt(rnmax - rnmin + 1) + rnmin);
         }
         state.setWeights(newWeights);
 
     }
-//
-//    public int[] reproduce(EvolObj p1, EvolObj p2) {
-//        int[] p1Weights = p1.getWeights();
-//        int[] p2Weights = p2.getWeights();
-//        int[] weights = new int[8];
-//        for(int i = 0; i < 8; i++){
-//            weights[i] = (p1Weights[i] + p2Weights[i])/2;
-//        }
-//        return weights;
-//    }
+
+    public int[] reproduce(EvolObj p1, EvolObj p2) {
+        int[] p1Weights = p1.getWeights();
+        int[] p2Weights = p2.getWeights();
+        int[] weights = new int[8];
+        for(int i = 0; i < 8; i++){
+            weights[i] = (p1Weights[i] + p2Weights[i])/2;
+        }
+        return weights;
+    }
 
     public int[] initialSeed(int rnmax, int rnmin){
         Random rn = new Random();
