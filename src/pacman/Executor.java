@@ -416,7 +416,7 @@ public class Executor
         return replay;
 	}
 
-    private double[] evolutionaryStrategy(int generations, int numGames, int min, int max){
+    private double[] evolutionaryComputation(int generations, int numGames, int min, int max, int genOrEvol){
         int rnmin = min;
         int rnmax = max;
         Game game = new Game(0);
@@ -471,11 +471,27 @@ public class Executor
 			for(int k = 0; k < numGames/2; k++){
 				population.add(popToMutate.get(k));
 			}
+
 			for(int k = 0; k < numGames/2; k++){
-				int index = rn.nextInt(numGames/2);
-				EvolObj mutatee = popToMutate.get(index);
-				mutate(mutatee, rnmax, rnmin);
-				population.add(mutatee);
+				int indexOne = rn.nextInt(numGames/2);
+				// evolutionary strategy
+				if(genOrEvol == 0){
+					EvolObj mutatee = popToMutate.get(indexOne);
+					mutate(mutatee, rnmax, rnmin);
+					population.add(mutatee);
+				}
+				//genetic programming
+				if(genOrEvol == 1){
+					int indexTwo = rn.nextInt(numGames/2);
+					while(indexTwo == indexOne){
+						indexTwo = rn.nextInt(numGames/2);
+					}
+					EvolObj p1 = popToMutate.get(indexOne);
+					EvolObj p2 = popToMutate.get(indexTwo);
+					EvolObj child = new EvolObj(game.copy(), reproduce(p1,p2));
+
+				}
+
 			}
 
         }
@@ -538,7 +554,7 @@ public class Executor
 				System.out.println(candidate.getScore());
 			}
 			genMaxScore[j] = maxScore;
-			genAvgScore[j] = avgScore/numGames;
+			genAvgScore[j] = (j == 0) ? avgScore/100 : avgScore/numGames;
 
 			// choose the 10 fittest based off score
 			for(int k = 0; k < numGames/2; k++){
