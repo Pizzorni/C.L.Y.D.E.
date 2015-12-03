@@ -11,6 +11,7 @@ import java.util.EnumMap;
 import java.util.Random;
 import pacman.controllers.Controller;
 import pacman.controllers.uninformed.DFSPacMan;
+import pacman.controllers.supervised.Perceptron;
 import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;
 import pacman.controllers.examples.AggressiveGhosts;
@@ -62,8 +63,9 @@ public class Executor
 		///*
 		//run the game in asynchronous mode.
 		boolean visual=true;
+		exec.runGameTimedPerceptron(new StarterGhosts(), 10);
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
-		exec.runGameTimed(new DFSPacMan(new StarterGhosts()),new StarterGhosts(),visual);
+//		exec.runGameTimed(new DFSPacMan(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
 		//*/
 		
@@ -193,6 +195,104 @@ public class Executor
 		
 		pacManController.terminate();
 		ghostController.terminate();
+	}
+
+	public void runGameTimedPerceptron(Controller<EnumMap<GHOST,MOVE>> ghostController, int trials)
+	{
+		int BAD_SCORE = 1800;
+		int[][] instances = {
+				{5, 2, 0},
+				{5, 5, 0},
+				{5, 10, 0},
+				{5, 15, 0},
+				{5, 20, 0},
+				{10, 2, 1},
+				{10, 5, 1},
+				{10, 10, 0},
+				{10, 15, 0},
+				{10, 20, 0},
+				{15, 2, 1},
+				{15, 5, 1},
+				{15, 10, 1},
+				{15, 15, 1},
+				{15, 20, 0},
+				{20, 2, 1},
+				{20, 5, 1},
+				{20, 10, 1},
+				{20, 15, 1},
+				{20, 20, 1},
+				{Integer.MAX_VALUE, 5, 1},
+				{Integer.MAX_VALUE, 10, 1},
+				{Integer.MAX_VALUE, 15, 1},
+				{Integer.MAX_VALUE, 20, 1}};
+
+		double[] weights = new double[instances.length];
+
+		int i;
+
+		for (i = 0; i < instances.length; i++)
+			weights[i] = Math.random()*10;
+
+		System.out.printf("Starting weights:\n");
+		printWeights(weights);
+
+		Perceptron pacManController = new Perceptron(instances, weights);
+
+		Random rnd=new Random(0);
+		Game game;
+		int score;
+		int[] instCount;
+
+		for (int j = 0; j < trials; j++) {
+			game = new Game(rnd.nextLong());
+
+			new Thread(pacManController).start();
+			new Thread(ghostController).start();
+
+			while (!game.gameOver()) {
+				pacManController.update(game.copy(), System.currentTimeMillis() + DELAY);
+				ghostController.update(game.copy(), System.currentTimeMillis() + DELAY);
+
+				try {
+					Thread.sleep(DELAY);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				game.advanceGame(pacManController.getMove(), ghostController.getMove());
+
+			}
+
+			//get 4 most used instances
+			//if score is less than bad score, decrement those weights
+			//if score is greater than bad score, increment those weights
+			instCount = pacManController.getInstanceNums();
+			score = game.getScore();
+			System.out.printf("Score for game %d: %d\n", j, score);
+
+			if (score < BAD_SCORE)
+				for (i = 0; i < 4; i++)
+					weights[instCount[i]] *= 0.5;
+			else
+				for (i = 0; i < 4; i++)
+					weights[instCount[i]] *= 2.0;
+
+
+		}
+		System.out.printf("Final weights:\n");
+		printWeights(weights);
+
+		pacManController.terminate();
+		ghostController.terminate();
+	}
+
+	private void printWeights(double[] weights){
+		System.out.print("[");
+		for(int i = 0; i < weights.length; i++) {
+			System.out.printf("%f, ", weights[i]);
+			if (i == weights.length/2) { System.out.println(); }
+		}
+		System.out.print("]\n");
 	}
 	
     /**
