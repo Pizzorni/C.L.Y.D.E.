@@ -9,8 +9,8 @@ we learn in class.
 
 ### TODO
 * Uninformed Search
-  * Breadth First
-  * Depth First
+  * ~~Breadth First~~
+  * ~~Depth First~~
   * ~~Iterative Deepening~~
 * Informed Search
   * Hill Climber
