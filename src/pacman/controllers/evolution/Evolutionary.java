@@ -1,25 +1,24 @@
 package pacman.controllers.evolution;
 
 import pacman.controllers.Controller;
+import pacman.controllers.examples.StarterGhosts;
 import pacman.game.Game;
-
+import pacman.Executor;
+import java.util.Random;
+import java.util.PriorityQueue;
 import java.util.EnumMap;
 
 import static pacman.game.Constants.*;
 
-import java.util.ArrayList;
-import java.util.PriorityQueue;
 
 /*
  */
-public class Evolutionary extends Controller<MOVE> {
-    private int GHOST_DIST_WT = 0;
-    private int NEAREST_GHOST_WT = 1000; //300
-    private int NUM_PILL_WT = 400; //400
-    private int DIST_PILL_WT = 0;
-    private int GHOST_EDIBLE_WT = 5; //5 --> 2359
-    private int PILLS_TO_TRACK = 0;
+public class Evolutionary extends Controller<MOVE>{
     private int numIters = 2;
+    private int rnmin = -1000;
+    private int rnmax = -1000;
+    private int NUMGAMES = 5;
+    private int NUMTRIALS = 10;
 
     Controller<EnumMap<GHOST, MOVE>> spookies;
 
@@ -27,50 +26,79 @@ public class Evolutionary extends Controller<MOVE> {
         this.spookies = spookies;
     }
 
+
     public MOVE getMove(Game game, long timeDue) {
         int iters = 0;
-        ArrayList<Node> explored = new ArrayList<>();
-        PriorityQueue<Node> evaluatedMoves = new PriorityQueue<>();
+        int numTrials = 10;
+        PriorityQueue<EvolObj> sortedPopulation = new PriorityQueue<>();
+        EvolObj[] population = new EvolObj[NUMGAMES];
+        for(int i = 0; i < NUMGAMES; i++){
+            population[i] = new EvolObj(game.copy(), initialSeed());
+        }
 
 
-        Node root = new Node(game.copy(), 0, null, null, 0);
-        evaluatedMoves.add(root);
-
-        while (iters < numIters) {
-            iters++;
-            Node best = evaluatedMoves.remove();
-            Node parent = null;
-            for (MOVE move : MOVE.values()) {
-
-                Game tempGame = game.copy();
-                for(int j = 0; j < 4; j++) {
-                    tempGame.advanceGame(move, spookies.getMove(tempGame, -1));
+        for (int i = 0; i < NUMGAMES; i++) {
+            int avgScore = 0;
+            int turncount = 0;
+            int curScore = 0;
+            int maxScore = -1;
+            int tempCost = 0;
+            EvolObj curState = population[i];
+            Game curGame = curState.getGame();
+            while (!curGame.gameOver()) {
+                for(MOVE move: MOVE.values()){
+                    for(int j = 0; j < 4; j++){
+                        curGame.advanceGame(move, spookies.getMove(curGame, -1));
+                    }
+                    tempCost = evaluateState(curState);
+                    curScore = curGame.getScore();
+                    maxScore = (maxScore > curScore) ? maxScore : curScore;
                 }
-                int tempCost = evaluateState(tempGame);
-                if(iters != 0) {
-                    parent = best;
-                }
-
-                Node temp = new Node(tempGame, best.getCost() + tempCost, move, parent, iters);
-                evaluatedMoves.add(temp);
             }
-            //numIters--;
+            population[i].setScore(curGame.getScore());
+            sortedPopulation.add(population[i]);
         }
 
-        Node bestOverall = evaluatedMoves.remove();
-        while(bestOverall.getDepth() != numIters){
-            bestOverall = evaluatedMoves.remove();
-        }
 
-        for(int i = 0; i < numIters -1 ; i++){
-            bestOverall = bestOverall.getParent();
-        }
-        return bestOverall.getMove();
 
+        return sortedPopulation.remove().getMove();
+    }
+
+    public void mutate(EvolObj state){
+        Random rn = new Random();
+        int[] newWeights = new int[8];
+        int[] oldWeights = state.getWeights();
+        for(int i = 0; i < 8; i++){
+            newWeights[i] = oldWeights[i] + rn.nextInt(rnmax - rnmin + 1) + rnmin;
+        }
+        state.setWeights(newWeights);
 
     }
 
-    private int evaluateState(Game game) {
+    public int[] reproduce(EvolObj p1, EvolObj p2) {
+        int[] p1Weights = p1.getWeights();
+        int[] p2Weights = p2.getWeights();
+        int[] weights = new int[8];
+        for(int i = 0; i < 8; i++){
+            weights[i] = (p1Weights[i] + p2Weights[i])/2;
+        }
+        return weights;
+    }
+
+    public int[] initialSeed(){
+        Random rn = new Random();
+        int[] weights = new int[8];
+        for(int i = 0; i < 8; i++){
+            weights[i] = rn.nextInt(rnmax - rnmin + 1) + rnmin;
+        }
+        return weights;
+    }
+
+
+    private int evaluateState(EvolObj state) {
+        Game game = state.getGame();
+        int[] weights = state.getWeights();
+
         int[] activePills = game.getActivePillsIndices();
         int[] activePowerPills = game.getActivePowerPillsIndices();
         int numPills = activePills.length;
@@ -119,83 +147,74 @@ public class Evolutionary extends Controller<MOVE> {
             minDistToGhost = 0;
         }
 
-        if(minDistToGhost < 5){
-            minDistToGhost = 0;
+        if(minDistToGhost < weights[6]){
+            minDistToGhost = weights[7];
         }
         else{
-            minDistToGhost = 100;
+            minDistToGhost = 0;
         }
 
 
         int distToClosestPills = 0;
-        for(int i = 0; i < PILLS_TO_TRACK; i++){
+        for(int i = 0; i < weights[5]; i++){
             distToClosestPills += distToPills.remove();
         }
-        //int pillWeight = game.getCurrentLevelTime() * (1/10) * NUM_PILL_WT;
-        int eval = (NUM_PILL_WT * totalPills) + //(DIST_PILL_WT * distToClosestPills)
-                + (NEAREST_GHOST_WT * minDistToGhost) + (GHOST_DIST_WT * totalDistToGhost)
-                + (GHOST_EDIBLE_WT * minDistToEdible);
-       // if(eval < 0) eval = 0;
+
+        int eval = (weights[2] * totalPills) + (weights[4] * distToClosestPills)
+                + (weights[1] * minDistToGhost) + (weights[0] * totalDistToGhost)
+                + (weights[3] * minDistToEdible);
+        // if(eval < 0) eval = 0;
         return eval;
     }
+
 }
 
-
-class Node implements Comparable<Node> {
+class EvolObj implements Comparable<EvolObj>{
     private Game game;
-    private int cost;
+    private int score;
+    private int[] weights;
     private MOVE move;
-    private Node parent;
-    private int depth;
 
-    public Node(Game game, int cost, MOVE move, Node parent, int depth) {
+    public EvolObj(Game game, int[] weights){
         this.game = game;
-        this.cost = cost;
-        this.move = move;
-        this.parent = parent;
-        this.depth = depth;
+        this.score = game.getScore();
+        this.weights = weights;
     }
 
-    public int compareTo(Node other) {
-        return Integer.compare(this.cost, other.cost);
-    }
-
-    public void setCost(int cost) {
-        this.cost = cost;
-    }
-
-    public void setGame(Game game) {
+    public void setGame(Game game){
         this.game = game;
     }
 
-    public void setMove(MOVE move) {
+    public void setWeights(int[] weights){
+        this.weights = weights;
+    }
+    public void setScore(int score){
+        this.score = score;
+    }
+
+    public void setMove(MOVE move){
         this.move = move;
     }
 
-    public void setParent(Node node) {
-        this.parent = node;
-    }
-
-    public int getCost() {
-        return cost;
-    }
-
-    public Game getGame() {
-        return game;
-    }
-
-    public MOVE getMove() {
+    public MOVE getMove(){
         return move;
     }
 
-    public Node getParent() {
-        return parent;
+    public int getScore(){
+        return score;
     }
 
-    public int getDepth() {
-        return this.depth;
+    public int[] getWeights(){
+        return weights;
     }
 
+    public Game getGame(){
+        return game;
+    }
+
+    public int compareTo(EvolObj other) {
+        return Integer.compare(this.score, other.getScore());
+    }
 }
 
 
