@@ -20,11 +20,30 @@ public class Astar extends Controller<MOVE> {
     private int GHOST_EDIBLE_WT = 5; //5 --> 2359
     private int PILLS_TO_TRACK = 0;
     private int numIters = 2;
+    private int GHOST_PANIC_DIST = 5;
+    private int GHOST_PANIC_VAL = 100;
+    private Game game;
 
     Controller<EnumMap<GHOST, MOVE>> spookies;
 
     public Astar(Controller<EnumMap<GHOST, MOVE>> spookies) {
         this.spookies = spookies;
+    }
+
+    // constructor for evolutionary computation so we can mutate and recombine weights
+    public Astar(Controller<EnumMap<GHOST, MOVE>> spookies, int[] weights, Game game){
+        this.spookies = spookies;
+        this.GHOST_DIST_WT = weights[0];
+        this.NEAREST_GHOST_WT = weights[1];
+        this.NUM_PILL_WT = weights[2];
+        this.GHOST_EDIBLE_WT = weights[3];
+        this.DIST_PILL_WT = weights[4];
+        this.PILLS_TO_TRACK = weights[5];
+        this.GHOST_PANIC_DIST = weights[6];
+        this.GHOST_PANIC_VAL = weights[7];
+        this.game = game;
+
+
     }
 
     public MOVE getMove(Game game, long timeDue) {
@@ -119,11 +138,11 @@ public class Astar extends Controller<MOVE> {
             minDistToGhost = 0;
         }
 
-        if(minDistToGhost < 5){
-            minDistToGhost = 0;
+        if(minDistToGhost < GHOST_PANIC_DIST){
+            minDistToGhost = GHOST_PANIC_VAL;
         }
         else{
-            minDistToGhost = 100;
+            minDistToGhost = 0;
         }
 
 
@@ -131,8 +150,8 @@ public class Astar extends Controller<MOVE> {
         for(int i = 0; i < PILLS_TO_TRACK; i++){
             distToClosestPills += distToPills.remove();
         }
-        //int pillWeight = game.getCurrentLevelTime() * (1/10) * NUM_PILL_WT;
-        int eval = (NUM_PILL_WT * totalPills) + //(DIST_PILL_WT * distToClosestPills)
+
+        int eval = (NUM_PILL_WT * totalPills) + (DIST_PILL_WT * distToClosestPills)
                 + (NEAREST_GHOST_WT * minDistToGhost) + (GHOST_DIST_WT * totalDistToGhost)
                 + (GHOST_EDIBLE_WT * minDistToEdible);
        // if(eval < 0) eval = 0;
