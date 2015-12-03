@@ -27,7 +27,7 @@ we learn in class.
 * Decision Trees
  * ID3
 * Reinforcement Learning
-  * ???
+  * Q-learning
 
 ## Part 2
 Part 2 of this project will involve building a system of AIs named C.L.Y.D.E. 
