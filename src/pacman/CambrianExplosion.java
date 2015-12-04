@@ -20,28 +20,38 @@ public class CambrianExplosion {
     static final int MUTATION = 0;
     static final int CROSSOVER = 1;
     static final int COMBINATION = 2;
+    static final int RNMAX = 50;
+    static final int RNMIN = -50;
     private int NUM_GEN;
     private int POP_SIZE;
     private int INIT_XFACTOR;
     private int INIT_POP_SIZE;
     private double TEMPERATURE;
+    private double REV_TEMPERATURE;
     private double DELTA_TEMP;
     private PriorityQueue<Organism> mutatePop;
     private PriorityQueue<Organism> crossoverPop;
     private PriorityQueue<Organism> combinationPop;
+    private PriorityQueue<Organism> mutatePopRev;
+    private PriorityQueue<Organism> crossoverPopRev;
+    private PriorityQueue<Organism> combinationPopRev;
 
 
-    public CambrianExplosion(int numGen, int popSize, int xfactor, double temp, double deltaTemp) {
+    public CambrianExplosion(int numGen, int popSize, int xfactor) {
         this.NUM_GEN = numGen;
         this.POP_SIZE = popSize;
         this.INIT_XFACTOR = xfactor;
-        this.TEMPERATURE = temp;
-        this.DELTA_TEMP = deltaTemp;
+        this.TEMPERATURE = 750;
+        this.DELTA_TEMP = 0.01;
+        this.REV_TEMPERATURE = 30;
         this.INIT_POP_SIZE = INIT_XFACTOR * POP_SIZE;
 
         mutatePop = new PriorityQueue<>();
         crossoverPop = new PriorityQueue<>();
         combinationPop = new PriorityQueue<>();
+        mutatePopRev = new PriorityQueue<>();
+        crossoverPopRev = new PriorityQueue<>();
+        combinationPopRev = new PriorityQueue<>();
     }
 
     public void explode() {
@@ -63,42 +73,47 @@ public class CambrianExplosion {
             mutatePop.add(new Organism(orgo));
             crossoverPop.add(new Organism(orgo));
             combinationPop.add(new Organism(orgo));
+            mutatePopRev.add(new Organism(orgo));
+            crossoverPopRev.add(new Organism(orgo));
+            combinationPopRev.add(new Organism(orgo));
         }
 
         ArrayList<Future> threads = new ArrayList<>();
-        ExecutorService executor = Executors.newFixedThreadPool(3);
-        EvolThread mutateThread = new EvolThread(mutatePop, MUTATION, 50, -50, NUM_GEN, POP_SIZE,
+        ExecutorService executor = Executors.newFixedThreadPool(6);
+        EvolThread mutateThread = new EvolThread(mutatePop, MUTATION, RNMAX, RNMIN, NUM_GEN, POP_SIZE,
                 INIT_POP_SIZE, TEMPERATURE, DELTA_TEMP);
-        EvolThread crossoverThread = new EvolThread(crossoverPop, CROSSOVER, 50, -50, NUM_GEN, POP_SIZE,
+        EvolThread crossoverThread = new EvolThread(crossoverPop, CROSSOVER, RNMAX, RNMIN, NUM_GEN, POP_SIZE,
                 INIT_POP_SIZE, TEMPERATURE, DELTA_TEMP);
-        EvolThread combinationThread = new EvolThread(combinationPop, COMBINATION, 50, -50, NUM_GEN, POP_SIZE,
+        EvolThread combinationThread = new EvolThread(combinationPop, COMBINATION, RNMAX, RNMIN, NUM_GEN, POP_SIZE,
                 INIT_POP_SIZE, TEMPERATURE, DELTA_TEMP);
+        EvolThread mutateThreadRev = new EvolThread(mutatePopRev, MUTATION, RNMAX, RNMIN, NUM_GEN, POP_SIZE,
+                INIT_POP_SIZE, REV_TEMPERATURE, -1 * DELTA_TEMP);
+        EvolThread crossoverThreadRev = new EvolThread(crossoverPopRev, CROSSOVER, RNMAX, RNMIN, NUM_GEN, POP_SIZE,
+                INIT_POP_SIZE, REV_TEMPERATURE, -1 * DELTA_TEMP);
+        EvolThread combinationThreadRev = new EvolThread(combinationPopRev, COMBINATION, RNMAX, RNMIN, NUM_GEN, POP_SIZE,
+                INIT_POP_SIZE, REV_TEMPERATURE, -1 * DELTA_TEMP);
 
         threads.add(executor.submit(mutateThread));
         threads.add(executor.submit(crossoverThread));
         threads.add(executor.submit(combinationThread));
+        threads.add(executor.submit(mutateThreadRev));
+        threads.add(executor.submit(crossoverThreadRev));
+        threads.add(executor.submit(combinationThreadRev));
 
         executor.shutdown();
+
         try{
             executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
         }
-        catch(java.lang.InterruptedException e){
-
-        }
-
+        catch(java.lang.InterruptedException e){}
 
         ArrayList<EvolResult> results = new ArrayList<>();
-
         for(Future f : threads){
             try{
                 results.add((EvolResult)f.get());
             }
-            catch (java.util.concurrent.ExecutionException e){
-
-            }
-            catch(java.lang.InterruptedException e){
-
-            }
+            catch (java.util.concurrent.ExecutionException e){}
+            catch(java.lang.InterruptedException e){}
         }
 
         String out = "";
@@ -109,7 +124,7 @@ public class CambrianExplosion {
                 weights += weight + " ";
             }
             weights+="]";
-            out = String.format("%-11s Max: %-4d Avg: %-6.2f Weights: %-20s ", r.getAlgotype(), r.getMaxScore(),
+            out = String.format("%-17s Max: %-4d Avg: %-6.2f Weights: %-20s ", r.getAlgotype(), r.getMaxScore(),
                     r.getAvgScore(), weights);
 
             System.out.println(out);
@@ -162,18 +177,23 @@ public class CambrianExplosion {
 
     /**
      * Crossover/reproduction function. Generates new weights by averaging the weights of two parents chosen
-     * from the fit population.
+     * from the fit population with a small random weight added to each parent's genotypes.
      *
      * @param p1 Parent one
      * @param p2 Parent two
      * @return Returns new weights generated from crossover of two parents
      */
-    public int[] reproduce(Organism p1, Organism p2) {
+    public int[] reproduce(Organism p1, Organism p2, int rnmax, int rnmin) {
         int[] p1Weights = p1.getWeights();
         int[] p2Weights = p2.getWeights();
         int[] newWeights = new int[8];
+        int[] p1Seed = new int[8];
+        int[] p2Seed = new int[8];
+        Random rn = new Random();
         for (int i = 0; i < 8; i++) {
-            newWeights[i] = (p1Weights[i] + p2Weights[i]) / 2;
+            p1Seed[i] = (rn.nextInt(rnmax - rnmin + 1) + rnmin) % rnmax;
+            p2Seed[i] = rn.nextInt(rnmax - rnmin + 1) + rnmin % rnmax;
+            newWeights[i] = (((p1Weights[i] *  p1Seed[i])) + ((p2Weights[i] * p2Seed[i])) / 2);
         }
         return newWeights;
     }
@@ -186,12 +206,11 @@ public class CambrianExplosion {
         private int popSize;
         private int initPopSize;
         private double temp;
-        private double coolingRate;
+        private double deltaTemp;
         private int algoType;
         private int rnmax;
         private int rnmin;
-        private double temp;
-        private double deltaTemp;
+
 
         public EvolThread(PriorityQueue<Organism> pop, int algoType, int max, int min, int numGen, int popSize,
                           int initPopSize, double temp, double deltaTemp){
@@ -226,8 +245,14 @@ public class CambrianExplosion {
             int randIndexTwo;
             int[] bestWeights;
             String algoName = "";
-
+            String rev = "";
+            int bestHalf = popSize/2;
+            int bestQuarter = popSize/2;
             Random rn = new Random();
+            Random rn2 = new Random();
+            int tempmax;
+            int tempmin;
+
 
             for (int genIter = 0; genIter < numGen; genIter++) {
                 sortedPopulation.clear();
@@ -242,17 +267,17 @@ public class CambrianExplosion {
                     }
                     curScore = curGame.getScore();
                     orgo.setFitness(curScore);
-                    avgScore += curScore;
+                    avgScore += curGame.getScore();
                     if(maxScore < curScore){
                         maxScore = curScore;
-                        bestWeights = orgo.getWeights();
                     }
                     sortedPopulation.add(orgo);
                 }
                 genMaxScores[genIter] = maxScore;
-                genAvgScores[genIter] = (genIter == 0) ? avgScore / initPopSize : avgScore / popSize;
+                genAvgScores[genIter] = (genIter == 0) ? avgScore/initPopSize : avgScore/popSize;
 
                 population.clear();
+
                 if (algoType == MUTATION) {
                     // Pick the top 50% to survive
                     tempPopSize = 0;
@@ -267,7 +292,12 @@ public class CambrianExplosion {
                     while (tempPopSize < popSize) {
                         randIndex = rn.nextInt(popSize / 2);
                         Organism mutatee = new Organism(selectedPopulation.get(randIndex));
-                        int[] mutatedWeights = mutate(mutatee, rnmax, rnmin);
+                        // A little pseudo simulated annealing. The more we mutate, the more/less effective it
+                        // will be depending on whether temperature is increasing or decreasing.
+                        tempmax = rnmax + rn.nextInt((int)temp);
+                        tempmin = rnmin + (-1 * rn.nextInt((int)temp));
+                        temp *= (1 - deltaTemp);
+                        int[] mutatedWeights = mutate(mutatee, tempmax, tempmin);
                         mutatee.setWeights(mutatedWeights);
                         mutatee.setFitness(0);
                         population.add(mutatee);
@@ -289,7 +319,8 @@ public class CambrianExplosion {
                         Organism temp = sortedPopulation.remove();
                         selectedPopulation.add(temp);
                     }
-                    for (int i = 0; i < popSize / 4; i++) {
+
+                    for (int i = 0; i < popSize/4; i++) {
                         randIndex = rn.nextInt(selectedPopulation.size());
                         Organism temp = new Organism(selectedPopulation.get(randIndex));
                         population.add(new Organism(temp));
@@ -311,7 +342,12 @@ public class CambrianExplosion {
                         }
                         Organism parentOne = selectedPopulation.get(randIndex);
                         Organism parentTwo = selectedPopulation.get(randIndexTwo);
-                        int[] reproducedWeights = reproduce(parentOne, parentTwo);
+                        // A little pseudo smmulated annealing. The more we reproduce, the more/less random it
+                        // will be depending on whether temperature is increasing or decreasing.
+                        tempmax = rnmax + rn.nextInt((int)temp);
+                        tempmin = rnmin + (-1 * rn.nextInt((int)temp));
+                        temp *= (1 - deltaTemp);
+                        int[] reproducedWeights = reproduce(parentOne, parentTwo, tempmax, tempmin);
                         Organism child = new Organism(game.copy(), reproducedWeights, 0);
                         population.add(child);
                         tempPopSize++;
@@ -334,8 +370,13 @@ public class CambrianExplosion {
                     // Mutate randomly from the chosen 50% to produce popSize/4 more candidates
                     for (int i = 0; i < popSize / 4; i++) {
                         randIndex = rn.nextInt(popSize / 2);
+                        // A little pseudo simulated annealing. The more we mutate, the more/less effective it
+                        // will be depending on whether temperature is increasing or decreasing.
                         Organism mutatee = new Organism(selectedPopulation.get(randIndex));
-                        int[] mutatedWeights = mutate(mutatee, rnmax, rnmin);
+                        tempmax = rnmax + rn.nextInt((int)temp);
+                        tempmin = rnmin + (-1 * rn.nextInt((int)temp));
+                        temp *= (1 - deltaTemp);
+                        int[] mutatedWeights = mutate(mutatee, tempmax, tempmin);
                         mutatee.setWeights(mutatedWeights);
                         mutatee.setFitness(0);
                         population.add(mutatee);
@@ -354,7 +395,11 @@ public class CambrianExplosion {
                         }
                         Organism parentOne = selectedPopulation.get(randIndex);
                         Organism parentTwo = selectedPopulation.get(randIndexTwo);
-                        int[] reproducedWeights = reproduce(parentOne, parentTwo);
+                        // A little pseudo smmulated annealing. The more we reproduce, the more/less random it
+                        // will be depending on whether temperature is increasing or decreasing.
+                        tempmax = rnmax + rn.nextInt((int)temp);
+                        tempmin = rnmin + (-1 * rn.nextInt((int)temp));
+                        int[] reproducedWeights = reproduce(parentOne, parentTwo, tempmax, tempmin);
                         Organism child = new Organism(game.copy(), reproducedWeights, 0);
                         population.add(child);
                         tempPopSize++;
@@ -370,7 +415,10 @@ public class CambrianExplosion {
                         break;
                 }
 
-                System.out.println(algoName + " --- Max: " + genMaxScores[genIter] + " Avg: "
+                rev = (deltaTemp < 0) ? " REV" : "";
+
+
+                System.out.println(algoName + rev + " --- Max: " + genMaxScores[genIter] + " Avg: "
                         + genAvgScores[genIter]);
             }
 
@@ -384,7 +432,7 @@ public class CambrianExplosion {
             avgAllGen = avgAllGen/numGen;
             Organism best = population.remove();
 
-            EvolResult ret = new EvolResult(algoName,best.getWeights(),maxAllGen,avgAllGen);
+            EvolResult ret = new EvolResult(algoName,best.getWeights(),maxAllGen,avgAllGen, deltaTemp);
             return ret;
 
         }
@@ -392,19 +440,30 @@ public class CambrianExplosion {
     }
 
     class EvolResult{
-        public EvolResult(String algoType, int[] bestWeights, int maxScore, double avgScore) {
-            this.algoType = algoType;
+        public EvolResult(String algoName, int[] bestWeights, int maxScore, double avgScore, double deltaTemp) {
+            this.algoName = algoName;
             this.bestWeights = bestWeights;
             this.maxScore = maxScore;
             this.avgScore = avgScore;
+            this.deltaTemp = deltaTemp;
+            if(deltaTemp < 0){
+                this.rev = " REV";
+            }
+            else{
+                this.rev = "";
+            }
+            this.algoType = this.algoName + this.rev;
         }
 
         public String getAlgotype() {
             return algoType;
         }
+        public String getAlgoName(){
+            return algoName;
+        }
 
-        public void setAlgotype(String algoType) {
-            this.algoType = algoType;
+        public void setAlgoName(String algoNype) {
+            this.algoName = algoName;
         }
 
         public int[] getBestWeights() {
@@ -431,10 +490,13 @@ public class CambrianExplosion {
             this.avgScore = avgScore;
         }
 
-        private String algoType;
+        private String algoName;
         private int[] bestWeights;
         private int maxScore;
         private double avgScore;
+        private double deltaTemp;
+        private String rev;
+        private String algoType;
     }
 }
 
