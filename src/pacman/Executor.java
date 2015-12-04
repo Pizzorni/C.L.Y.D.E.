@@ -9,31 +9,19 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Random;
-import java.util.Arrays;
 import java.util.PriorityQueue;
 
 import pacman.controllers.Controller;
 
 /** our import statements ***********/
-import pacman.controllers.supervised.*;
 import pacman.controllers.uninformed.*;;
-import pacman.controllers.evolution.*;
 import pacman.controllers.informed.*;
 import pacman.controllers.decisiontree.*;
 /**************************************/
 import pacman.controllers.HumanController;
-import pacman.controllers.KeyBoardInput;
-import pacman.controllers.examples.AggressiveGhosts;
-import pacman.controllers.examples.Legacy;
-import pacman.controllers.examples.Legacy2TheReckoning;
-import pacman.controllers.examples.NearestPillPacMan;
-import pacman.controllers.examples.NearestPillPacManVS;
 import pacman.controllers.examples.RandomGhosts;
-import pacman.controllers.examples.RandomNonRevPacMan;
 import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
-import pacman.controllers.examples.StarterPacMan;
-import pacman.controllers.uninformed.DFS;
 import pacman.game.Game;
 import pacman.game.GameView;
 
@@ -63,18 +51,20 @@ public class Executor {
 
         //run a game in synchronous mode: game waits until controllers respond.
         int delay = 5;
-        exec.runGame(new RandomPacMan(), new RandomGhosts(), visual, delay);
+       // exec.runGame(new RandomPacMan(), new RandomGhosts(), visual, delay);
 
 
         //run the game in asynchronous mode.
 //		exec.runGameTimed(new IterDeepPacMan(new StarterGhosts()), new StarterGhosts(), visual);
 //		exec.runGameTimed(new KNearestPacMan(), new StarterGhosts(), visual);
-        exec.runGameTimed(new BFS(new StarterGhosts()), new StarterGhosts(), visual);
+       // exec.runGameTimed(new BFS(new StarterGhosts()), new StarterGhosts(), visual);
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new DFSPacMan(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
 
-        exec.runGame(new ID3(new StarterGhosts()), new StarterGhosts(), visual, delay);
+        //exec.runGame(new ID3(new StarterGhosts()), new StarterGhosts(), visual, delay);
+        CambrianExplosion boom = new CambrianExplosion(5, 10, 1);
+        boom.explode();
 
 
         ///*
@@ -533,310 +523,6 @@ public class Executor {
 
     }
 
-    private void cambrianExplosion(){
-        int numGen = 10;
-        int popSize = 10;
-        int initialPop = popSize;
-        ArrayList<EvolObj> initialPopulation = new ArrayList<>();
-        PriorityQueue<EvolObj> mutateOnlyPopulation = new PriorityQueue<>();
-        PriorityQueue<EvolObj> crossoverOnlyPopulation = new PriorityQueue<>();
-        PriorityQueue<EvolObj> mutateAndCrossoverPopulation = new PriorityQueue<>();
-
-        Game game = new Game(0);
-
-        // Seed initial population
-        for (int i = 0; i < initialPop; i++) {
-            EvolObj temp = new EvolObj(game.copy(), initialSeed(1000, -1000));
-            temp.setScore(0);
-            initialPopulation.add(temp);
-        }
-
-        //
-
-
-
-    }
-
-    /**
-     * Implementation of Evolutionary Strategy and Genetic Programming for phase 2. Evolves A* heuristic through either
-     * mutation or reproduction as documented below.
-     * Implemented here due to performance issues when implemented as a controller. Visual not added due to
-     * complications arising from running several hundreds of games. Also a huge performance hit to do so.
-     *
-     * @param generations Number of generations to run. Recommended range: [5,30]
-     * @param popSize     Size of population to be kept each generation. Recommended range: [5,20]
-     * @param min         Minimum random value to be used in mutation step. Used mostly in simulated annealing.
-     * @param max         Maximum random value to be used in mutation step. Used mostly in simulated annealing.
-     * @param genOrEvol   Dictates whether we will use an Evolutionary Strategy or Genetic Programming.
-     *                    If 0, Evol. Strat. If 1, Genetic Programming. If 2, does a combination.
-     * @return Returns an array containing the Maximum score across all generations and the average scores of
-     * all generations. Provided for fine tuning of parameters and statistical analysis in part 2.
-     */
-    private double[] evolutionaryComputationP(int generations, int popSize, int min, int max, int genOrEvol) {
-        int rnmin = min;
-        int rnmax = max;
-        Game game = new Game(0);
-        Random rn = new Random();
-        int[] genMaxScore = new int[generations];
-        double[] genAvgScore = new double[generations];
-        int[][] bestWeightsPerGen = new int[generations][8];
-
-        // Slight optimization. Generation 0 will contain a considerably larger population so as to have more variance
-        // We will then take the popSize/2 best, and then have a working set of size popSize.
-        int initialPop = 5 * popSize;
-
-
-        Executor exec = new Executor();
-        // Priority Queue will sort our population by score. EvolObj compare sorts in reverse order to compensate
-        // for the priority queue's "natural ordering"
-        PriorityQueue<EvolObj> population = new PriorityQueue<>();
-        // Used to resort population in intermediary steps since Queue will not resort itself
-        PriorityQueue<EvolObj> resortedPop = new PriorityQueue<>();
-        // Used to extract the popSize/2 fittest members of population
-        ArrayList<EvolObj> fitPop = new ArrayList<>();
-        // Large initial population to add some variance and then smaller mutations
-        for (int i = 0; i < initialPop; i++) {
-            // Randomize weights of initial population. We use [-1000, 1000] so as to have more variance and prevent
-            // getting stuck on a local optimum.
-            EvolObj temp = new EvolObj(game.copy(), initialSeed(1000, -1000));
-            temp.setScore(0);
-            population.add(temp);
-        }
-
-        // Iterate over number of generations
-        for (int j = 0; j < generations; j++) {
-            // maxScore and avgScore computed on a generation by generation basis for statistical anlysis
-            int maxScore = 0;
-            double avgScore = 0;
-            // Clear the previous fitPopulation
-            fitPop.clear();
-            //System.out.println(j + " ******** GENERATION ******* " + j);
-            int i = 0; // count population member number
-            // Iterate over the entire candidate population
-            for (EvolObj candidate : population) {
-                //System.out.print("citizen: " + i + " ");
-                // Initialize blank game
-                candidate.setGame(game.copy());
-                Game curGame = candidate.getGame();
-                int[] curWeights = candidate.getWeights();
-                // The algorithm we are evolving is A*. We evolve the weights using the alternate
-                // constructor provided.
-                Astar tempController = new Astar(new StarterGhosts(), curWeights);
-                // Advance game until it is complete using Astar's getMove
-                while (!curGame.gameOver()) {
-                    curGame.advanceGame(tempController.getMove(curGame.copy(), -1), new StarterGhosts().getMove(game.copy(), -1));
-
-                    //try{Thread.sleep(5);}catch(Exception e){}
-
-                }
-                // Update score for fitness evaluation
-                candidate.setScore(curGame.getScore());
-                // Use second priority queue to resort population
-                resortedPop.add(candidate);
-                avgScore += candidate.getScore();
-                // Update max score. If new max score is found, keep track of which weights were used to obtain it too
-                if (maxScore < candidate.getScore()) {
-                    maxScore = candidate.getScore();
-                    bestWeightsPerGen[j] = candidate.getWeights();
-                }
-                i++; //increment to keep track of candidate number for logging purposes
-                // Log population performance. Commented out by default.
-                //System.out.println(" score: " + candidate.getScore() + " weights: " + Arrays.toString(candidate.getWeights()));
-            }
-            // Store statistics for current generation performance
-            genMaxScore[j] = maxScore;
-            // Take into account that generation 0 is considerably larger
-            genAvgScore[j] = (j == 0) ? avgScore / initialPop : avgScore / popSize;
-
-            // choose the fittest half of the population based off game score
-            for (int k = 0; k < popSize / 2; k++) {
-                EvolObj temp = resortedPop.remove();
-                fitPop.add(temp);
-            }
-
-            // Clear priority queues in preparation for next generation
-            population.clear();
-            resortedPop.clear();
-            for (EvolObj citizen : fitPop) {
-                population.add(citizen);
-            }
-
-            // Crossover and Mutation step, dependent on Evol Strat/Genetic Programming flag
-            // Since we chose the popSize/2 best, we need to generate another popSize/2 candidates
-            for (int k = 0; k < popSize / 2; k++) {
-                // Randomly choose who to mutate/reproduce from the best
-                int indexOne = rn.nextInt(popSize / 2);
-                // Evolutionary Strategy
-                if (genOrEvol == 0) {
-                    EvolObj mutatee = fitPop.get(indexOne);
-                    // M-m-m-m-m-mutate
-                    int[] newWeights = mutate(mutatee, rnmax, rnmin);
-                    // Create new member of population given new mutated weights
-                    EvolObj newCitizen = new EvolObj(game.copy(), newWeights);
-                    newCitizen.setScore(0);
-                    population.add(newCitizen);
-                }
-                // Genetic Programming
-                if (genOrEvol == 1) {
-                    // Randomly choose another member of the population with which to reproduce
-                    int indexTwo = rn.nextInt(popSize / 2);
-                    // Make sure that we chose a different member of the population. Asexual reproduction does nothing
-                    // given our reproduction function revolves around averaging weights
-                    while (indexTwo == indexOne) {
-                        indexTwo = rn.nextInt(popSize / 2);
-                    }
-                    EvolObj p1 = fitPop.get(indexOne);
-                    EvolObj p2 = fitPop.get(indexTwo);
-                    EvolObj child = new EvolObj(game.copy(), reproduce(p1, p2));
-                    child.setScore(0);
-                    population.add(child);
-                }
-            }
-
-//			System.out.println("GENERATION " + j + " RESULTS");
-//			System.out.println("Max: " + genMaxScore[j] + " Avg: " + genAvgScore[j]);
-//			System.out.println("Weights used: " + Arrays.toString(bestWeightsPerGen[j]));
-
-        }
-        // Statistical analysis over all generations
-        double allGenMax = 0;
-        double allGenAvg = 0;
-        for (int i = 0; i < generations; i++) {
-            //System.out.println("Generation " + i + " max score: " + genMaxScore[i] + " avg score: " + genAvgScore[i]);
-            allGenMax = (allGenMax < genMaxScore[i]) ? genMaxScore[i] : allGenMax;
-            allGenAvg += genAvgScore[i];
-        }
-        allGenAvg = allGenAvg / generations;
-
-        double[] retVals = new double[]{allGenMax, allGenAvg};
-        return retVals;
-
-    }
-
-    /**
-     * Mutation function. Generates random numbers in the range [rnmin, rnmax] and adds them to
-     * to the weight vector of the current EvolObj. Predominantly used for Evolution Strategy.
-     *
-     * @param state The evolutionary object that will be mutated to produce a new member of the pop
-     * @param rnmax Maximum random value to be used in mutation step. Fixed unless using simulated annealing.
-     * @param rnmin Minimum random value to be used in mutation step. Fixed unless using simulated annealing.
-     * @return Returns new mutated weights generated from current weights
-     */
-
-    public int[] mutate(EvolObj state, int rnmax, int rnmin) {
-        Random rn = new Random();
-        int[] newWeights = new int[8];
-        int[] oldWeights = state.getWeights();
-        for (int i = 0; i < 8; i++) {
-            newWeights[i] = oldWeights[i] + (rn.nextInt(rnmax - rnmin + 1) + rnmin);
-        }
-        return newWeights;
-
-    }
-
-    /**
-     * Crossover/reproduction function. Generates new weights by averaging the weights of two parents chosen
-     * from the fit population.
-     *
-     * @param p1 Parent one
-     * @param p2 Parent two
-     * @return Returns new weights generated from crossover of two parents
-     */
-    public int[] reproduce(EvolObj p1, EvolObj p2) {
-        int[] p1Weights = p1.getWeights();
-        int[] p2Weights = p2.getWeights();
-        int[] newWeights = new int[8];
-        for (int i = 0; i < 8; i++) {
-            newWeights[i] = (p1Weights[i] + p2Weights[i]) / 2;
-        }
-        return newWeights;
-    }
-
-    /**
-     * Initial random seeding function used to generate weights for initial population in evolutionary algos.
-     * Numbers are generated from the range [-1000, 1000] which is considerably more random than the mutation step
-     * in order to ensure a varied initial population. Hopefully will prevent getting stuck on local
-     * optimums. Will potentially be modified by simulated annealing in part 2.
-     *
-     * @param rnmax Maximum random value to be used in initial weight generation step.
-     * @param rnmin Minimum random value to be used in initial weight generation step.
-     * @return Returns weight vector for initial population
-     */
-    public int[] initialSeed(int rnmax, int rnmin) {
-        Random rn = new Random();
-        int[] weights = new int[8];
-        for (int i = 0; i < 8; i++) {
-            weights[i] = rn.nextInt(rnmax - rnmin + 1) + rnmin;
-        }
-        return weights;
-    }
 }
 
-
-/**
- * This class is a wrapper object used to keep track of relevant evolutionary information.
- * Maintains information including game being simulated and its score/weights.
- */
-class EvolObj implements Comparable<EvolObj> {
-    private Game game;
-    private int score;
-    private int[] weights;
-
-    /**
-     * Constructor to build tree nodes
-     *
-     * @param game    The game being simulated
-     * @param weights Vector of weights used in A* heuristic function
-     */
-
-    public EvolObj(Game game, int[] weights) {
-        this.game = game;
-        this.weights = weights;
-    }
-
-    // Setters and getters
-    public void setGame(Game game) {
-        this.game = game;
-    }
-
-    public void setWeights(int[] weights) {
-        this.weights = weights;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public int getScore() {
-        return score;
-    }
-
-    public int[] getWeights() {
-        return weights;
-    }
-
-    public Game getGame() {
-        return game;
-    }
-
-
-    // Implement comparable so we can use priority queue to sort population for us based on
-    // fitness, which is score/performance in this case.
-    // Reverses the default comparison since a higher score is better, and natural integer ordering
-    // would give the worst performing members of the population the worst score.
-
-    // TL;DR: If score of this member of the population is higher, return -1 so that the
-    // priority queue thinks it is "smaller" based off natural ordering
-    public int compareTo(EvolObj other) {
-        int thisScore = this.getGame().getScore();
-        int otherScore = other.getGame().getScore();
-        if (thisScore > otherScore) {
-            return -1;
-        } else if (thisScore == otherScore) {
-            return 0;
-        } else {
-            return 1;
-        }
-    }
-}
 
