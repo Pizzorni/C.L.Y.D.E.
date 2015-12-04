@@ -15,7 +15,7 @@ we learn in class.
 * Informed Search
   * ~~Hill Climber~~
   * ~~A*~~
-  * Simulated Annealing
+  * ~~Simulated Annealing~~
 * ~~Evolutionary Algorithms~~
   * ~~Evolution Strategy~~
   * ~~Genetic Algorithms~~
@@ -23,7 +23,7 @@ we learn in class.
   * ~~Alpha Beta Pruning~~
 * Supervised Learning
   * ~~k-Nearest Neighbor~~
-  * Perceptron
+  * ~~Perceptron~~
 * Decision Trees
  * ID3
 * Reinforcement Learning
