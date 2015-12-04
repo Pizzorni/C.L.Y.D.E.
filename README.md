@@ -13,7 +13,7 @@ we learn in class.
   * ~~Depth First~~
   * ~~Iterative Deepening~~
 * Informed Search
-  * Hill Climber
+  * ~~Hill Climber~~
   * ~~A*~~
   * Simmulated Annealing
 * ~~Evolutionary Algorithms~~
