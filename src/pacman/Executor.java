@@ -12,6 +12,8 @@ import java.util.Random;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 import pacman.controllers.Controller;
+import pacman.controllers.evolution.EvolutionaryStrategy;
+import pacman.controllers.evolution.GeneticProgramming;
 import pacman.controllers.informed.Astar;
 import pacman.controllers.uninformed.DFSPacMan;
 import pacman.controllers.HumanController;
@@ -51,8 +53,8 @@ public class Executor
 
 
 		//run multiple games in batch mode - good for testing.
-		//int numTrials=100;
-		//exec.runExperiment(new Astar(new StarterGhosts()), new StarterGhosts(),numTrials);
+		int numTrials=10;
+		exec.runExperiment(new GeneticProgramming(new StarterGhosts()), new StarterGhosts(),numTrials);
 
 		
 		/*
@@ -87,33 +89,34 @@ public class Executor
 //		for(int i = 0; i < 5; i++){
 //			System.out.println("Range:[" + (i*-25) + "," + (i*25) + "] Max: " + maxes[i-1+4] + " Avg: " + avgs[i-1+4]);
 //		}
-		double[] ret = exec.evolutionaryComputation(numGen, popSize, -50, 50, 1);
-		//System.out.println("Max: " + ret[0] + "Avgs: " + ret[1]);
-		maxes[0] = ret[0];
-		avgs[0] = ret[1];
-		ret = exec.evolutionaryComputation(numGen, popSize, -750, 750, 1);
-		maxes[1] = ret[0];
-		avgs[1] = ret[1];
-		ret = exec.evolutionaryComputation(numGen, popSize, -50, 50, 0);
-		maxes[2] = ret[0];
-		avgs[2] = ret[1];
-		exec.evolutionaryComputation(numGen, popSize, -750, 750, 0);
-		maxes[3] = ret[0];
-		avgs[3] = ret[1];
-		for(int i = 0; i < 4; i ++){
-			if(i >= 2){
-				System.out.println("*** EVOLUTIONARY STRATEGY ***");
-			}
-			if(i < 2){
-				System.out.println("*** GENETIC PROGRAMMING ***");
-			}
-			System.out.println("Max: " + maxes[i] + " Avg: " + avgs[i]);
-		}
+//		double[] ret = exec.evolutionaryComputation(numGen, popSize, -50, 50, 1);
+//		//System.out.println("Max: " + ret[0] + "Avgs: " + ret[1]);
+//		maxes[0] = ret[0];
+//		avgs[0] = ret[1];
+//		ret = exec.evolutionaryComputation(numGen, popSize, -750, 750, 1);
+//		maxes[1] = ret[0];
+//		avgs[1] = ret[1];
+//		ret = exec.evolutionaryComputation(numGen, popSize, -50, 50, 0);
+//		maxes[2] = ret[0];
+//		avgs[2] = ret[1];
+//		exec.evolutionaryComputation(numGen, popSize, -750, 750, 0);
+//		maxes[3] = ret[0];
+//		avgs[3] = ret[1];
+//		for(int i = 0; i < 4; i ++){
+//			if(i >= 2){
+//				System.out.println("*** EVOLUTIONARY STRATEGY ***");
+//			}
+//			if(i < 2){
+//				System.out.println("*** GENETIC PROGRAMMING ***");
+//			}
+//			System.out.println("Max: " + maxes[i] + " Avg: " + avgs[i]);
+//		}
 
 
 		//exec.evolutionaryStrategy(5,10,5,visual);
-//		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
-		//exec.runGameTimed(new Astar(new StarterGhosts()),new StarterGhosts(),visual);
+//
+
+		//exec.runGameTimed(new EvolutionaryStrategy(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
 		//*/
 		
