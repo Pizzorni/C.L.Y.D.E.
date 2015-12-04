@@ -11,10 +11,7 @@ import static pacman.game.Constants.*;
  * Implements a controller using iterative deepening
  */
 public class DFS extends Controller<MOVE> {
-    private static int SCORE = 40;
     private static int ITERATIONS = 3;
-    private static MOVE[] moves;
-    private boolean found;
     private Stack<TreeNode> tree = new Stack<>();
     private ArrayList<TreeNode> parents = new ArrayList<>();
 
@@ -31,28 +28,29 @@ public class DFS extends Controller<MOVE> {
      * @return move decision
      */
     public MOVE getMove(Game game,long timeDue) {
+        int iter = ITERATIONS;
 
         //root node
         tree.push(new TreeNode(game.copy(), null, null));
-        int nodes = 1;
 
-        while(ITERATIONS > 0){
+        while(iter > 0){
             TreeNode tmp = tree.pop();
             for (MOVE move : MOVE.values()){
-                if(tmp.getMove() != null){
-                    parents.add(tmp);
-                }
                 Game tmpGame = game.copy();
-                tmpGame.advanceGame(move, spookies.getMove());
+                for(int i = 0; i < 4; i++){
+                    tmpGame.advanceGame(move, spookies.getMove());
+                }
+
                 TreeNode child = new TreeNode(tmpGame, move, tmp);
                 tree.push(child);
-                nodes++;
             }
-            ITERATIONS--;
+            iter--;
         }
-        System.out.println(nodes);
 
-        TreeNode foundMove = parents.remove(0);
+        TreeNode foundMove = tree.pop();
+        while(foundMove.getParent().getMove() != null){
+            foundMove = foundMove.getParent();
+        }
 
         return foundMove.getMove();
 
