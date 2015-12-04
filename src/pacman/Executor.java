@@ -199,39 +199,42 @@ public class Executor
 
 	public void runGameTimedPerceptron(Controller<EnumMap<GHOST,MOVE>> ghostController, int trials)
 	{
-		int BAD_SCORE = 1800;
 		int[][] instances = {
-				{5, 2, 0},
-				{5, 5, 0},
-				{5, 10, 0},
-				{5, 15, 0},
-				{5, 20, 0},
-				{10, 2, 1},
-				{10, 5, 1},
-				{10, 10, 0},
-				{10, 15, 0},
-				{10, 20, 0},
-				{15, 2, 1},
-				{15, 5, 1},
-				{15, 10, 1},
-				{15, 15, 1},
-				{15, 20, 0},
-				{20, 2, 1},
-				{20, 5, 1},
-				{20, 10, 1},
-				{20, 15, 1},
-				{20, 20, 1},
-				{Integer.MAX_VALUE, 5, 1},
-				{Integer.MAX_VALUE, 10, 1},
-				{Integer.MAX_VALUE, 15, 1},
-				{Integer.MAX_VALUE, 20, 1}};
+				{5, 2},
+				{5, 5},
+				{5, 10},
+				{5, 15},
+				{5, 20},
+				{10, 2},
+				{10, 5},
+				{10, 10},
+				{10, 15},
+				{10, 20},
+				{15, 2},
+				{15, 5},
+				{15, 10},
+				{15, 15},
+				{15, 20},
+				{20, 2},
+				{20, 5},
+				{20, 10},
+				{20, 15},
+				{20, 20},
+				{Integer.MAX_VALUE, 5},
+				{Integer.MAX_VALUE, 10},
+				{Integer.MAX_VALUE, 15},
+				{Integer.MAX_VALUE, 20}};
+
+		int[] expected = {-1, -1, 1, -1, -1, -1, 1, 1, -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
 		double[] weights = new double[instances.length];
 
 		int i;
 
-		for (i = 0; i < instances.length; i++)
+		for (i = 0; i < instances.length; i++) {
 			weights[i] = Math.random()*10;
+		}
+
 
 		System.out.printf("Starting weights:\n");
 		printWeights(weights);
@@ -269,14 +272,15 @@ public class Executor
 			instCount = pacManController.getInstanceNums();
 			score = game.getScore();
 			System.out.printf("Score for game %d: %d\n", j, score);
-
+/			/*
 			if (score < BAD_SCORE)
 				for (i = 0; i < 4; i++)
-					weights[instCount[i]] *= 0.5;
+					weights[instCount[i]] *= 0.9;
 			else
 				for (i = 0; i < 4; i++)
-					weights[instCount[i]] *= 2.0;
-
+					weights[instCount[i]] *= 1.1;
+			*/
+			if (j%10 == 0) { printWeights(weights); }
 
 		}
 		System.out.printf("Final weights:\n");
