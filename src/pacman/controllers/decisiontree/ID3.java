@@ -16,10 +16,12 @@ import static pacman.game.Constants.*;
 
 public class ID3 extends Controller<MOVE> {
     Controller<EnumMap<GHOST, MOVE>> spookies;
-    private GHOST closestGhost;
+    private GHOST closestSpooky;
     private int closestPill;
     private int closestPillDist;
-    private int ghostPANICRUNAWAY;
+    private int closestPower;
+    private int closestPowerDist;
+    private int spookiestSpookyDist;
     private int NUMATTRIBUTES = 3;
     private int[] GHOST_CUTOFFS = {10,25};
     private int[] PILL_CUTOFFS = {25};
@@ -142,12 +144,116 @@ public class ID3 extends Controller<MOVE> {
      * @return Returns the move that gets it the highest score in its immediate vicinity
      */
     public MOVE getMove(Game game, long timeDue) {
-        
 
-
+        // RECON
+        gatherData(game);
+        int current = game.getPacmanCurrentNodeIndex();
+        DNode decisionNode = traverseTree(rootNode);
+        int decision = decisionNode.getDecision();
+        switch(decision){
+            case 0: return game.getNextMoveAwayFromTarget(current, game.getGhostCurrentNodeIndex(closestSpooky), DM.PATH);
+            case 1: return game.getNextMoveTowardsTarget(current, closestPill, DM.PATH);
+        }
+        // just in case
         return MOVE.LEFT;
-
     }
+
+    public DNode traverseTree(DNode node){
+        int attribute = node.getAttribute();
+        boolean baseCase = checkLeaf(node);
+        if(baseCase){
+            return node;
+        }
+
+        if(attribute == ATTR_GHOST){
+            if(spookiestSpookyDist <= 10){
+                return traverseTree(node.getChildren().get(0));
+            }
+            else if(10 < spookiestSpookyDist && spookiestSpookyDist < 25){
+                return traverseTree(node.getChildren().get(1));
+            }
+            else{
+                return traverseTree(node.getChildren().get(2));
+            }
+        }
+
+        if(attribute == ATTR_PILL){
+            if(closestPillDist <= 25){
+                return traverseTree(node.getChildren().get(0));
+            }
+            else{
+                return traverseTree(node.getChildren().get(1));
+            }
+        }
+        else{
+            if(closestPower <= 15){
+                return traverseTree(node.getChildren().get(0));
+            }
+            else{
+                return traverseTree(node.getChildren().get(1));
+            }
+        }
+    }
+
+    /**
+     * 	Evaluates game state
+     * 	Gets distance of the closest ghost and closest pill
+     * @param game
+     */
+    private void gatherData(Game game){
+        //get distance of nearest non-edible ghost and distance to nearest pill
+
+        int current=game.getPacmanCurrentNodeIndex();
+
+        //Get distance from closest ghost
+        spookiestSpookyDist=Integer.MAX_VALUE;
+        int tmp;
+        //NOTE: this for loop is adapted from the StarterPacMan controller
+        for(GHOST ghost : GHOST.values()) {
+            if (game.getGhostEdibleTime(ghost) == 0 && game.getGhostLairTime(ghost) == 0) {
+                tmp = game.getShortestPathDistance(current, game.getGhostCurrentNodeIndex(ghost));
+                if (tmp < spookiestSpookyDist)
+                    spookiestSpookyDist = tmp;
+                closestSpooky = ghost;
+            }
+        }
+
+
+        //Get distance of nearest pill (normal or power)
+        //NOTE: this section is also adapted from the StarterPacMan controller
+        int[] pills=game.getPillIndices();
+        int[] powerPills=game.getPowerPillIndices();
+
+        ArrayList<Integer> targetPills=new ArrayList<Integer>();
+        ArrayList<Integer> targetPower=new ArrayList<Integer>();
+
+        for(int i=0;i<pills.length;i++)					//check which pills are available
+            if(game.isPillStillAvailable(i))
+                targetPills.add(pills[i]);
+
+        for(int i=0;i<powerPills.length;i++)			//check with power pills are available
+            if(game.isPowerPillStillAvailable(i))
+                targetPower.add(powerPills[i]);
+
+        int[] targetsArrayPills=new int[targetPills.size()];		//convert from ArrayList to array
+        int[] targetsArrayPower=new int[targetPower.size()];		//convert from ArrayList to array
+
+        for(int i=0;i<targetsArrayPills.length;i++)
+            targetsArrayPills[i]=targetPills.get(i);
+
+        for(int i=0;i<targetsArrayPower.length;i++)
+            targetsArrayPower[i]=targetPower.get(i);
+
+        //return the next direction once the closest target has been identified
+        closestPill = game.getClosestNodeIndexFromNodeIndex(current,targetsArrayPills,DM.PATH);
+        closestPillDist = game.getShortestPathDistance(current, closestPill);
+
+        closestPower = game.getClosestNodeIndexFromNodeIndex(current,targetsArrayPower,DM.PATH);
+        closestPowerDist = game.getShortestPathDistance(current, closestPower);
+
+        //info. gathered.
+    }
+
 
     public void buildTree(DNode node){
         int numBranches = 2;
