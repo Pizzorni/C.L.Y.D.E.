@@ -8,7 +8,7 @@ Part 1 of the project will involve implementing every single algorithm
 we learn in class.
 
 ### TODO
-* Uninformed Search
+* ~~Uninformed Search~~
   * ~~Breadth First~~
   * ~~Depth First~~
   * ~~Iterative Deepening~~
@@ -16,9 +16,9 @@ we learn in class.
   * Hill Climber
   * ~~A*~~
   * Simmulated Annealing
-* Evolutionary Algorithms
-  * Evolution Strategy
-  * Genetic Algorithms
+* ~~Evolutionary Algorithms~~
+  * ~~Evolution Strategy~~
+  * ~~Genetic Algorithms~~
 * ~~Adversarial Search~~
   * ~~Alpha Beta Pruning~~
 * Supervised Learning
