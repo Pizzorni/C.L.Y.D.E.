@@ -69,7 +69,7 @@ public class KNearestPacMan extends Controller<MOVE>
 
 		if (decision == 0)
 			//run from nearest ghost
-			return game.getNextMoveAwayFromTarget(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(closestGhost),DM.PATH);
+			return game.getNextMoveAwayFromTarget(current,game.getGhostCurrentNodeIndex(closestGhost),DM.PATH);
 		else
 			//run to nearest pill
 			return game.getNextMoveTowardsTarget(current, closestPill, DM.PATH);
