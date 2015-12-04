@@ -1,7 +1,7 @@
 # C.L.Y.D.E.
 
 Final project for Artificial Intelligence, Fall 2015. Taught by Julian
-Togelius at NYU Poly. Created by Whitney Mulhern and Giorgio Pizzorni.
+Togelius at NYU ~~Poly~~ Tandon. Created by Whitney Mulhern, Giorgio Pizzorni, and Kunal Relia.
 
 ## Part 1
 Part 1 of the project will involve implementing every single algorithm
