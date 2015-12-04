@@ -13,7 +13,6 @@ import static pacman.game.Constants.*;
 public class DFS extends Controller<MOVE> {
     private static int ITERATIONS = 3;
     private Stack<TreeNode> tree = new Stack<>();
-    private ArrayList<TreeNode> parents = new ArrayList<>();
 
 
     Controller<EnumMap<GHOST, MOVE>> spookies;
