@@ -18,16 +18,17 @@ import java.util.PriorityQueue;
  *
  */
 public class Astar extends Controller<MOVE> {
-    private int GHOST_DIST_WT = -105;
-    private int NEAREST_GHOST_WT = 411; //300
-    private int NUM_PILL_WT = 854; //400
-    private int DIST_PILL_WT = -823;
-    private int GHOST_EDIBLE_WT = -998; //5 --> 2359
-    private int PILLS_TO_TRACK = -299;
+    // Default weights chosen somewhat at random empirically
+    private int GHOST_DIST_WT = -4;
+    private int NEAREST_GHOST_WT = -569; //300
+    private int NUM_PILL_WT = 309; //400
+    private int DIST_PILL_WT = 58;
+    private int GHOST_EDIBLE_WT = 894; //5 --> 2359
+    private int PILLS_TO_TRACK = -637;
     private int numIters = 2;
-    private int GHOST_PANIC_DIST = -848;
-    private int GHOST_PANIC_VAL = -128;
-    private Game game;
+    private int GHOST_PANIC_DIST = 603;
+    private int GHOST_PANIC_VAL = -604;
+
 
     Controller<EnumMap<GHOST, MOVE>> spookies;
 
