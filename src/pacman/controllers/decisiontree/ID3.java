@@ -90,17 +90,17 @@ public class ID3 extends Controller<MOVE> {
 
     }
 
-    public double[][] getProportion(ArrayList<int[]> instance, int attribute){
+    public double[][] getCount(ArrayList<int[]> instance, int attribute){
         // first index
         // 0 --> negative
         // 1 --> positive
 
         // second index corresponds to attribute specific cutoffs
-        double count[][] = new double[2][3];
         int value;
         int classification;
         for(int[] set : instance){
             if(attribute == ATTR_GHOST){
+                double count[][] = new double[2][3];
                 value = set[attribute];
                 classification = set[3];
                 if(value <= 10){
@@ -127,8 +127,10 @@ public class ID3 extends Controller<MOVE> {
                         count[1][2]++;
                     }
                 }
+                return count;
             }
             if(attribute == ATTR_PILL){
+                double count[][] = new double[2][2];
                 value = set[attribute];
                 classification = set[3];
                 if( value < 25){
@@ -147,8 +149,10 @@ public class ID3 extends Controller<MOVE> {
                         count[1][1]++;
                     }
                 }
+                return count;
             }
             if(attribute == ATTR_POWER){
+                double count[][] = new double[2][2];
                 value = set[attribute];
                 classification = set[3];
                 if(value < 15){
@@ -167,16 +171,60 @@ public class ID3 extends Controller<MOVE> {
                         count[1][1]++;
                     }
                 }
+                return count;
             }
         }
-        return count;
+        return null;
     }
 
-    public double entropy(double posProb, double negProb){
+    public double entropy(double posCount, double negCount){
+        double size = posCount + negCount;
+        double posProb = posCount/size;
+        double negProb = negCount/size;
+        double entropy = - posProb * (Math.log(posProb)/Math.log(2)) - negProb * (Math.log(negProb)/Math.log(2));
+        return entropy;
+
+    }
+
+    /*
+     * computes entropy for a specific attribute given an instance
+     */
+    public double entropyOnAttribute(ArrayList<int[]> instance, int attribute){
+        double[][] attributeCount = getCount(instance, attribute);
         double entropy;
-        entropy = -posProb * (Math.log(posProb)/Math.log(2)) - negProb * (Math.log(negProb)/Math.log(2));
+        double totalPos = 0;
+        double totalNeg = 0;
+        for(int i = 0; i < attributeCount[0].length; i++){
+            totalPos += attributeCount[1][i];
+            totalNeg += attributeCount[0][i];
+        }
+
+        entropy = entropy(totalPos, totalNeg);
         return entropy;
     }
+
+    /*
+     *   computes entropy after partitioning instance based of attribute
+     */
+    public double entropyOnPartition(ArrayList<int[]> instance, int attribute){
+        double[][] count = getCount(instance, attribute);
+        double entropy = 0;
+        double temptropy = 0;
+        double countSum = 0;
+        for(int i = 0; i < count[0].length; i++){
+            temptropy = entropy(count[0][i], count[1][i]);
+            countSum = count[0][i] + count[1][i];
+            entropy += temptropy * (countSum/instance.size());
+        }
+        return entropy;
+    }
+
+    public double informationGain(ArrayList<int[]> instance, int attribute){
+        double entropy = entropyOnAttribute(instance, attribute);
+        double entropyPartition = entropyOnPartition(instance, attribute);
+        return entropy - entropyPartition;
+    }
+
 }
 
 
