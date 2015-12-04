@@ -33,7 +33,7 @@ public class DFS extends Controller<MOVE> {
         tree.push(new TreeNode(game.copy(), null, null));
 
         while(iter > 0){
-            TreeNode tmp = tree.pop();
+            TreeNode tmp = tree.peek();
             for (MOVE move : MOVE.values()){
                 Game tmpGame = game.copy();
                 for(int i = 0; i < 4; i++){
