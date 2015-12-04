@@ -13,17 +13,11 @@ import java.util.Arrays;
 import java.util.PriorityQueue;
 
 import pacman.controllers.Controller;
-<<<<<<< HEAD
-import pacman.controllers.supervised.KNearestPacMan;
-import pacman.controllers.uninformed.DFS;
-import pacman.controllers.supervised.Perceptron;
-=======
-import pacman.controllers.evolution.EvolutionaryStrategy;
-import pacman.controllers.evolution.GeneticProgramming;
-import pacman.controllers.informed.Astar;
-import pacman.controllers.informed.HillClimber;
-import pacman.controllers.uninformed.DFSPacMan;
->>>>>>> master
+import pacman.controllers.supervised.*;
+import pacman.controllers.uninformed.*;;
+import pacman.controllers.evolution.*;
+import pacman.controllers.informed.*;
+import pacman.controllers.decisiontree.*;
 import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;
 import pacman.controllers.examples.AggressiveGhosts;
@@ -36,12 +30,7 @@ import pacman.controllers.examples.RandomNonRevPacMan;
 import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
-<<<<<<< HEAD
 import pacman.controllers.uninformed.DFS;
-import pacman.controllers.uninformed.BFS;
-=======
-import pacman.controllers.decisiontree.ID3;
->>>>>>> master
 import pacman.game.Game;
 import pacman.game.GameView;
 
@@ -53,7 +42,6 @@ import static pacman.game.Constants.*;
  * game.entries.pacman respectively. The skeleton classes are already provided. The package
  * structure should not be changed (although you may create sub-packages in these packages).
  */
-@SuppressWarnings("unused")
 public class Executor {
     /**
      * The main method. Several options are listed - simply remove comments to use the option you want.
@@ -62,39 +50,34 @@ public class Executor {
      */
     public static void main(String[] args) {
         Executor exec = new Executor();
+        boolean visual = true;
 
 
         //run multiple games in batch mode - good for testing.
         //int numTrials=10;
         //exec.runExperiment(new HillClimber(new StarterGhosts()), new StarterGhosts(),numTrials);
 
-		
 
         //run a game in synchronous mode: game waits until controllers respond.
-		int delay=5;
-		boolean visual=true;
-<<<<<<< HEAD
-		exec.runGame(new RandomPacMan(),new RandomGhosts(),visual,delay);
-  		 */
-		
+        int delay = 5;
+        exec.runGame(new RandomPacMan(), new RandomGhosts(), visual, delay);
 
-		//run the game in asynchronous mode.
-		boolean visual=true;
+
+        //run the game in asynchronous mode.
 //		exec.runGameTimed(new IterDeepPacMan(new StarterGhosts()), new StarterGhosts(), visual);
 //		exec.runGameTimed(new KNearestPacMan(), new StarterGhosts(), visual);
-		exec.runGameTimed(new BFS(new StarterGhosts()), new StarterGhosts(), visual);
+        exec.runGameTimed(new BFS(new StarterGhosts()), new StarterGhosts(), visual);
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new DFSPacMan(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
 
-=======
-		exec.runGame(new ID3(new StarterGhosts()),new StarterGhosts(),visual,delay);
+        exec.runGame(new ID3(new StarterGhosts()), new StarterGhosts(), visual, delay);
 
 
         ///*
         //run the game in asynchronous mode.
         // attemping to fine tune evolutionary computation parameters
-      //  boolean visual = true;
+        //  boolean visual = true;
         int numGen = 5;
         int popSize = 10;
         double[] maxes = new double[8];
@@ -154,11 +137,10 @@ public class Executor {
 //        avg = avg / 100;
 //        System.out.println("Max: " + max + " Avg: " + avg);
 
-      //  exec.runGameTimed(new ID3(new StarterGhosts()),new StarterGhosts(),visual);
+        //  exec.runGameTimed(new ID3(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
         //*/
->>>>>>> master
-		
+
 		/*
 		//run the game in asynchronous mode but advance as soon as both controllers are ready  - this is the mode of the competition.
 		//time limit of DELAY ms still applies.
@@ -173,15 +155,10 @@ public class Executor {
 		String fileName="replay.txt";
 		exec.runGameTimedRecorded(new HumanController(new KeyBoardInput()),new RandomGhosts(),visual,fileName);
 		//exec.replayGame(fileName,visual);
-<<<<<<< HEAD
 		*/
-	}
-	
-=======
-		 */
     }
 
->>>>>>> master
+
     /**
      * For running multiple games without visuals. This is useful to get a good idea of how well a controller plays
      * against a chosen opponent: the random nature of the game means that performance can vary from game to game.
@@ -244,111 +221,43 @@ public class Executor {
         }
     }
 
-    /**
-     * Run the game with time limit (asynchronous mode). This is how it will be done in the competition.
-     * Can be played with and without visual display of game states.
-     *
-     * @param pacManController The Pac-Man controller
-     * @param ghostController  The Ghosts controller
-     * @param visual           Indicates whether or not to use visuals
-     */
-<<<<<<< HEAD
-    public void runGameTimed(Controller<MOVE> pacManController,Controller<EnumMap<GHOST,MOVE>> ghostController,boolean visual)
-	{
-		Game game=new Game(0);
-		
-		GameView gv=null;
-		
-		if(visual)
-			gv=new GameView(game).showGame();
-		
-		if(pacManController instanceof HumanController)
-			gv.getFrame().addKeyListener(((HumanController)pacManController).getKeyboardInput());
-				
-		new Thread(pacManController).start();
-		new Thread(ghostController).start();
-		
-		while(!game.gameOver())
-		{
-			pacManController.update(game.copy(),System.currentTimeMillis()+DELAY);
-			ghostController.update(game.copy(),System.currentTimeMillis()+DELAY);
+    public void runGameTimedPerceptron(Controller<EnumMap<GHOST, MOVE>> ghostController, int training) {
+        int[][] instances = {
+                {5, 2}, {5, 5}, {5, 10}, {5, 15}, {5, 20},
+                {10, 2}, {10, 5}, {10, 10}, {10, 15}, {10, 20},
+                {15, 2}, {15, 5}, {15, 10}, {15, 15}, {15, 20},
+                {20, 2}, {20, 5}, {20, 10}, {20, 15}, {20, 20},
+                {Integer.MAX_VALUE, 5}, {Integer.MAX_VALUE, 10}, {Integer.MAX_VALUE, 15}, {Integer.MAX_VALUE, 20}};
 
-			try
-			{
-				Thread.sleep(DELAY);
-			}
-			catch(InterruptedException e)
-			{
-				e.printStackTrace();
-			}
+        int[] expected = {-1, -1, 1, -1, -1, -1, 1, 1, -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-	        game.advanceGame(pacManController.getMove(),ghostController.getMove());	   
-	        
-	        if(visual)
-	        	gv.repaint();
-		}
-		
-		pacManController.terminate();
-		ghostController.terminate();
-	}
+        double[] weights = new double[2];
 
-	public void runGameTimedPerceptron(Controller<EnumMap<GHOST,MOVE>> ghostController, int training)
-	{
-		int[][] instances = {
-				{5, 2},
-				{5, 5},
-				{5, 10},
-				{5, 15},
-				{5, 20},
-				{10, 2},
-				{10, 5},
-				{10, 10},
-				{10, 15},
-				{10, 20},
-				{15, 2},
-				{15, 5},
-				{15, 10},
-				{15, 15},
-				{15, 20},
-				{20, 2},
-				{20, 5},
-				{20, 10},
-				{20, 15},
-				{20, 20},
-				{Integer.MAX_VALUE, 5},
-				{Integer.MAX_VALUE, 10},
-				{Integer.MAX_VALUE, 15},
-				{Integer.MAX_VALUE, 20}};
+        int i, j;
+        weights[0] = Math.random();
+        weights[1] = Math.random();
+        System.out.printf("initial weights\n[%f, %f]\n", weights[0], weights[1]);
+        // TRAIN THE PERCEPTRON
+        for (i = 0; i < training; i++) {
+            int non_match = 0;
+            for (j = 0; j < instances.length; j++) {
+                double dot = weights[0] * instances[j][0] + weights[1] * instances[j][1];
+                //System.out.println(dot);
+                if (expected[j] != Math.signum(dot)) {
+                    non_match++;
+                    //adjust weight
+                    weights[0] += 1 / 3 * (double) instances[j][0];
+                    weights[1] += 1 / 3 * (double) instances[j][1];
+                }
+            }
+            System.out.printf("%d not a match\n", non_match);
+        }
+        System.out.printf("final weights\n[%f, %f]\n", weights[0], weights[1]);
+        //USE THE PERCEPTRON
+        //runGameTimed(new Perceptron(weights), ghostController, true);
+    }
 
-		int[] expected = {-1, -1, 1, -1, -1, -1, 1, 1, -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-		double[] weights = new double[2];
-
-		int i, j;
-		weights[0] = Math.random();
-		weights[1] = Math.random();
-		System.out.printf("initial weights\n[%f, %f]\n", weights[0], weights[1]);
-		// TRAIN THE PERCEPTRON
-		for (i = 0; i < training; i++){
-			int non_match = 0;
-			for (j = 0; j < instances.length; j++){
-				double dot = weights[0]*instances[j][0] + weights[1]*instances[j][1];
-				//System.out.println(dot);
-				if (expected[j] != Math.signum(dot)){
-					non_match++;
-					//adjust weight
-					weights[0] += 1/3 * (double)instances[j][0];
-					weights[1] += 1/3 * (double)instances[j][1];
-				}
-			}
-			System.out.printf("%d not a match\n", non_match);
-		}
-		System.out.printf("final weights\n[%f, %f]\n", weights[0], weights[1]);
-		//USE THE PERCEPTRON
-		//runGameTimed(new Perceptron(weights), ghostController, true);
-	}
-	
-=======
     public void runGameTimed(Controller<MOVE> pacManController, Controller<EnumMap<GHOST, MOVE>> ghostController, boolean visual) {
         Game game = new Game(0);
 
@@ -383,7 +292,7 @@ public class Executor {
         ghostController.terminate();
     }
 
->>>>>>> master
+
     /**
      * Run the game in asynchronous mode but proceed as soon as both controllers replied. The time limit still applies so
      * so the game will proceed after 40ms regardless of whether the controllers managed to calculate a turn.
@@ -557,10 +466,10 @@ public class Executor {
      * A simple simulated annealing implementation. Simulates a game with a hill climber. If the score is
      * better, we accept the move. If the score is worse, we accept it with some probability.
      *
-     * @param temp Initial temperature used to compute probability of accepting worse moves.
-     *             Recommended range: [10000, 100000]
+     * @param temp        Initial temperature used to compute probability of accepting worse moves.
+     *                    Recommended range: [10000, 100000]
      * @param coolingRate Rate at which temperature decreases, percentage wise.
-     *             Recommended range: [0.0001, 0.005]
+     *                    Recommended range: [0.0001, 0.005]
      * @return Returns final score of game for statistical analysis.
      */
     private int simulatedAnnealing(double temp, double coolingRate) {
@@ -636,7 +545,7 @@ public class Executor {
      * @return Returns an array containing the Maximum score across all generations and the average scores of
      * all generations. Provided for fine tuning of parameters and statistical analysis in part 2.
      */
-    private double[] evolutionaryComputationP#(int generations, int popSize, int min, int max, int genOrEvol) {
+    private double[] evolutionaryComputationP(int generations, int popSize, int min, int max, int genOrEvol) {
         int rnmin = min;
         int rnmax = max;
         Game game = new Game(0);
@@ -834,72 +743,73 @@ public class Executor {
         }
         return weights;
     }
+}
 
+
+/**
+ * This class is a wrapper object used to keep track of relevant evolutionary information.
+ * Maintains information including game being simulated and its score/weights.
+ */
+class EvolObj implements Comparable<EvolObj> {
+    private Game game;
+    private int score;
+    private int[] weights;
 
     /**
-     * This class is a wrapper object used to keep track of relevant evolutionary information.
-     * Maintains information including game being simulated and its score/weights.
+     * Constructor to build tree nodes
+     *
+     * @param game    The game being simulated
+     * @param weights Vector of weights used in A* heuristic function
      */
-    class EvolObj implements Comparable<EvolObj> {
-        private Game game;
-        private int score;
-        private int[] weights;
 
-        /**
-         * Constructor to build tree nodes
-         *
-         * @param game    The game being simulated
-         * @param weights Vector of weights used in A* heuristic function
-         */
+    public EvolObj(Game game, int[] weights) {
+        this.game = game;
+        this.weights = weights;
+    }
 
-        public EvolObj(Game game, int[] weights) {
-            this.game = game;
-            this.weights = weights;
-        }
+    // Setters and getters
+    public void setGame(Game game) {
+        this.game = game;
+    }
 
-        // Setters and getters
-        public void setGame(Game game) {
-            this.game = game;
-        }
+    public void setWeights(int[] weights) {
+        this.weights = weights;
+    }
 
-        public void setWeights(int[] weights) {
-            this.weights = weights;
-        }
+    public void setScore(int score) {
+        this.score = score;
+    }
 
-        public void setScore(int score) {
-            this.score = score;
-        }
+    public int getScore() {
+        return score;
+    }
 
-        public int getScore() {
-            return score;
-        }
+    public int[] getWeights() {
+        return weights;
+    }
 
-        public int[] getWeights() {
-            return weights;
-        }
-
-        public Game getGame() {
-            return game;
-        }
+    public Game getGame() {
+        return game;
+    }
 
 
-        // Implement comparable so we can use priority queue to sort population for us based on
-        // fitness, which is score/performance in this case.
-        // Reverses the default comparison since a higher score is better, and natural integer ordering
-        // would give the worst performing members of the population the worst score.
+    // Implement comparable so we can use priority queue to sort population for us based on
+    // fitness, which is score/performance in this case.
+    // Reverses the default comparison since a higher score is better, and natural integer ordering
+    // would give the worst performing members of the population the worst score.
 
-        // TL;DR: If score of this member of the population is higher, return -1 so that the
-        // priority queue thinks it is "smaller" based off natural ordering
-        public int compareTo(EvolObj other) {
-            int thisScore = this.getGame().getScore();
-            int otherScore = other.getGame().getScore();
-            if (thisScore > otherScore) {
-                return -1;
-            } else if (thisScore == otherScore) {
-                return 0;
-            } else {
-                return 1;
-            }
+    // TL;DR: If score of this member of the population is higher, return -1 so that the
+    // priority queue thinks it is "smaller" based off natural ordering
+    public int compareTo(EvolObj other) {
+        int thisScore = this.getGame().getScore();
+        int otherScore = other.getGame().getScore();
+        if (thisScore > otherScore) {
+            return -1;
+        } else if (thisScore == otherScore) {
+            return 0;
+        } else {
+            return 1;
         }
     }
 }
+
