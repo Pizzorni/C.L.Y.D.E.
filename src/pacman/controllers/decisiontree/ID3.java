@@ -5,6 +5,7 @@ import pacman.controllers.Controller;
 import pacman.game.Game;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 
 import static pacman.game.Constants.*;
@@ -43,8 +44,8 @@ public class ID3 extends Controller<MOVE> {
             {5, 2, 20, 0},
             {5, 5, 20, 0},
             {5, 10, 20, 0},
-            {5, 15, 20, 0},
-            {5, 20, 20, 0},
+            {15, 15, 20, 0},
+            {25, 20, 20, 0},
             {10, 2, 5, 0},
             {10, 5, 5, 0},
             {10, 10, 5, 0},
@@ -55,66 +56,66 @@ public class ID3 extends Controller<MOVE> {
             {10, 10, 20, 0},
             {10, 15, 20, 0},
             {10, 20, 20, 0},
-            {15, 2, 5, 1},
-            {15, 5, 5, 1},
-            {15, 10, 5, 1},
-            {15, 15, 5, 1},
-            {15, 20, 5, 1},
-            {15, 2, 10, 1},
-            {15, 5, 10, 1},
-            {15, 10, 10, 1},
-            {15, 15, 10, 1},
-            {15, 20, 10, 1},
-            {15, 2, 20, 0},
-            {15, 5, 20, 0},
-            {15, 10, 20, 0},
-            {15, 15, 20, 0},
-            {15, 20, 20, 0},
-            {20, 2, 5, 1},
-            {20, 5, 5, 1},
-            {20, 10, 5, 1},
-            {20, 15, 5, 1},
-            {20, 20, 5, 1},
-            {20, 2, 10, 1},
-            {20, 5, 10, 1},
-            {20, 10, 10, 1},
-            {20, 15, 10, 1},
-            {20, 20, 10, 1},
-            {20, 2, 20, 0},
-            {20, 5, 20, 0},
-            {20, 10, 20, 0},
-            {20, 15, 20, 0},
-            {20, 20, 20, 0},
-            {25, 2, 5, 1},
-            {25, 5, 5, 1},
-            {25, 10, 5, 1},
-            {25, 15, 5, 1},
-            {25, 20, 5, 1},
-            {25, 2, 10, 1},
-            {25, 5, 10, 1},
-            {25, 10, 10, 1},
-            {25, 15, 10, 1},
-            {25, 20, 10, 1},
-            {25, 2, 20, 1},
-            {25, 5, 20, 1},
-            {25, 10, 20, 1},
-            {25, 15, 20, 1},
-            {25, 20, 20, 1},
-            {25, 30, 5, 0},
-            {25, 30, 5, 0},
-            {25, 30, 5, 0},
-            {25, 30, 5, 0},
-            {25, 30, 5, 0},
-            {25, 30, 10, 0},
-            {25, 30, 10, 0},
-            {25, 30, 10, 0},
-            {25, 30, 10, 0},
-            {25, 30, 10, 0},
-            {25, 30, 20, 0},
-            {25, 30, 20, 0},
-            {25, 30, 20, 0},
-            {25, 30, 20, 0},
-            {25, 30, 20, 0},
+//            {15, 2, 5, 1},
+//            {15, 5, 5, 1},
+//            {15, 10, 5, 1},
+//            {15, 15, 5, 1},
+//            {15, 20, 5, 1},
+//            {15, 2, 10, 1},
+//            {15, 5, 10, 1},
+//            {15, 10, 10, 1},
+//            {15, 15, 10, 1},
+//            {15, 20, 10, 1},
+//            {15, 2, 20, 0},
+//            {15, 5, 20, 0},
+//            {15, 10, 20, 0},
+//            {15, 15, 20, 0},
+//            {15, 20, 20, 0},
+////            {20, 2, 5, 1},
+//            {20, 5, 5, 1},
+//            {20, 10, 5, 1},
+//            {20, 15, 5, 1},
+//            {20, 20, 5, 1},
+//            {20, 2, 10, 1},
+//            {20, 5, 10, 1},
+//            {20, 10, 10, 1},
+//            {20, 15, 10, 1},
+//            {20, 20, 10, 1},
+//            {20, 2, 20, 0},
+//            {20, 5, 20, 0},
+//            {20, 10, 20, 0},
+//            {20, 15, 20, 0},
+//            {20, 20, 20, 0},
+//            {25, 2, 5, 1},
+//            {25, 5, 5, 1},
+//            {25, 10, 5, 1},
+//            {25, 15, 5, 1},
+//            {25, 20, 5, 1},
+//            {25, 2, 10, 1},
+//            {25, 5, 10, 1},
+//            {25, 10, 10, 1},
+//            {25, 15, 10, 1},
+//            {25, 20, 10, 1},
+//            {25, 2, 20, 1},
+//            {25, 5, 20, 1},
+//            {25, 10, 20, 1},
+//            {25, 15, 20, 1},
+//            {25, 20, 20, 1},
+//            {25, 30, 5, 0},
+//            {25, 30, 5, 0},
+//            {25, 30, 5, 0},
+//            {25, 30, 5, 0},
+//            {25, 30, 5, 0},
+//            {25, 30, 10, 0},
+//            {25, 30, 10, 0},
+//            {25, 30, 10, 0},
+//            {25, 30, 10, 0},
+//            {25, 30, 10, 0},
+//            {25, 30, 20, 0},
+//            {25, 30, 20, 0},
+//            {25, 30, 20, 0},
+//            {25, 30, 20, 0},
+//            {25, 30, 20, 0},
 
 //            {Integer.MAX_VALUE, 5, 1},
 //            {Integer.MAX_VALUE, 10, 1},
@@ -151,12 +152,14 @@ public class ID3 extends Controller<MOVE> {
         int current = game.getPacmanCurrentNodeIndex();
         DNode decisionNode = traverseTree(rootNode);
         int decision = decisionNode.getDecision();
-        switch(decision){
-            case 0: return game.getNextMoveAwayFromTarget(current, game.getGhostCurrentNodeIndex(closestSpooky), DM.PATH);
-            case 1: return game.getNextMoveTowardsTarget(current, closestPill, DM.PATH);
+        if(decision == 0) {
+            return game.getNextMoveAwayFromTarget(current, game.getGhostCurrentNodeIndex(closestSpooky), DM.PATH);
+        }
+        else{
+            return game.getNextMoveTowardsTarget(current, closestPill, DM.PATH);
         }
         // just in case
-        return MOVE.LEFT;
+
     }
 
     public DNode traverseTree(DNode node){
@@ -257,7 +260,7 @@ public class ID3 extends Controller<MOVE> {
 
 
     public void buildTree(DNode node){
-        int numBranches = 2;
+        int numBranches;
         boolean baseCase = checkLeaf(node);
         if(baseCase){
             node.setDecision(node.getInstances().get(0)[3]);
@@ -266,9 +269,10 @@ public class ID3 extends Controller<MOVE> {
             int attributeToPick = chooseAttribute(node.getInstances());
             numBranches = (attributeToPick == 0) ? 3 : 2;
             node.setAttribute(attributeToPick);
+          //  System.out.println("Attribute " + attributeToPick);
             for(int i = 0; i < numBranches; i++){
-                ArrayList<int[]> subInstance = partitionInstance(node.getInstances(),node.getAttribute(), i);
-                DNode child = new DNode(node,subInstance,0,0);
+                ArrayList<int[]> subInstance = partitionInstance(node.getInstances(),attributeToPick, i);
+                DNode child = new DNode(node,subInstance,-1,-1);
                 node.setChild(child);
                 buildTree(child);
             }
@@ -276,16 +280,16 @@ public class ID3 extends Controller<MOVE> {
     }
 
     public ArrayList<int[]> partitionInstance(ArrayList<int[]> instance, int attribute, int branch){
-        ArrayList<int[]> subInstance = new ArrayList<>();
-        switch(attribute){
-            case ATTR_GHOST: subInstance = partitionGhostInstance(instance, branch);
-                break;
-            case ATTR_PILL: subInstance = partitionPillInstance(instance, branch);
-                break;
-            case ATTR_POWER: subInstance = partitionPowerInstance(instance, branch);
-                break;
+        ArrayList<int[]> subInstance;
+        if(attribute == ATTR_GHOST) {
+            subInstance = partitionGhostInstance(instance, branch);
         }
-
+        else if(attribute == ATTR_PILL) {
+            subInstance = partitionPillInstance(instance, branch);
+        }
+        else{
+            subInstance = partitionPowerInstance(instance, branch);
+        }
         return subInstance;
     }
 
@@ -327,7 +331,7 @@ public class ID3 extends Controller<MOVE> {
         }
         else{
             for(int[] set : instance){
-                if(set[0] > 25){
+                if(set[1] > 25){
                     subInstance.add(set);
                 }
             }
@@ -345,7 +349,7 @@ public class ID3 extends Controller<MOVE> {
         }
         else{
             for(int[] set : instance){
-                if(set[0] > 15){
+                if(set[2] > 15){
                     subInstance.add(set);
                 }
             }
@@ -356,10 +360,11 @@ public class ID3 extends Controller<MOVE> {
     // computes information gain for all attributes and returns the best attribute
     public int chooseAttribute(ArrayList<int[]> instance){
         int bestAttribute = 0;
-        double bestInfoGain = 0;
+        double bestInfoGain = -1;
         for(int i = 0; i < NUMATTRIBUTES; i++){
             double infoGain;
             infoGain = informationGain(instance, i);
+          //  System.out.println(infoGain);
             if(bestInfoGain < infoGain){
                 bestInfoGain = infoGain;
                 bestAttribute = i;
@@ -372,17 +377,20 @@ public class ID3 extends Controller<MOVE> {
     public boolean checkLeaf(DNode node){
         // base case
         ArrayList<int[]> nodeInstance = node.getInstances();
-//        int targetVal = nodeInstance.get(0)[3];
-//        for(int[] set: nodeInstance){
-//            if(targetVal != set[3]){
-//                return false;
-//            }
-//        }
-        double entropy = entropyOnAttribute(nodeInstance, node.getAttribute());
-        if(entropy == 0){
-            return true;
+        int targetVal = nodeInstance.get(0)[3];
+        int count = 0;
+        for(int[] set: nodeInstance){
+            count++;
+          //  System.out.println(Arrays.toString(set) + " count: " + count);
+            if(targetVal != set[3]){
+                return false;
+            }
         }
-        return false;
+//        double entropy = entropyOnAttribute(nodeInstance, node.getAttribute());
+//        if(entropy == 0){
+//            return true;
+//        }
+        return true;
     }
 
     public double[][] getCount(ArrayList<int[]> instance, int attribute){
@@ -393,24 +401,27 @@ public class ID3 extends Controller<MOVE> {
         // second index corresponds to attribute specific cutoffs
         int value;
         int classification;
-        for(int[] set : instance){
+        double count[][] = new double[2][3];
+        for(int i = 0; i < instance.size(); i++){
+          //  System.out.println(instance.get(i)[attribute]);
             if(attribute == ATTR_GHOST){
-                double count[][] = new double[2][3];
-                value = set[attribute];
-                classification = set[3];
+                value = instance.get(i)[attribute];
+//                System.out.println("instance " + Arrays.toString(instance.get(i)) + " i: " + i);
+                classification = instance.get(i)[3];
+              //  System.out.println("Value: " + value + " Classification: " + classification);
                 if(value <= 10){
                     if(classification == 0){
                         count[0][0]++;
                     }
-                    else{
-                        count[1][0]++;
+                    else if (classification == 1){
+                        count[0][1]++;
                     }
                 }
                 else if (10 < value && value < 25){
                     if(classification == 0){
                         count[0][1]++;
                     }
-                    else{
+                    else if (classification == 1){
                         count[1][1]++;
                     }
                 }
@@ -418,21 +429,21 @@ public class ID3 extends Controller<MOVE> {
                     if(classification == 0){
                         count[0][2]++;
                     }
-                    else{
+                    else if (classification == 1){
                         count[1][2]++;
                     }
                 }
-                return count;
+              //  System.out.println(Arrays.toString(count[0]));
+               // return count;
             }
             if(attribute == ATTR_PILL){
-                double count[][] = new double[2][2];
-                value = set[attribute];
-                classification = set[3];
+                value = instance.get(i)[attribute];
+                classification = instance.get(i)[3];
                 if( value == 25){
                     if(classification == 0){
                         count[0][0]++;
                     }
-                    else{
+                    else if (classification == 1){
                         count[1][0]++;
                     }
                 }
@@ -440,21 +451,20 @@ public class ID3 extends Controller<MOVE> {
                     if(classification == 0){
                         count[0][1]++;
                     }
-                    else{
+                    else if (classification == 1){
                         count[1][1]++;
                     }
                 }
-                return count;
+             //   return count;
             }
             if(attribute == ATTR_POWER){
-                double count[][] = new double[2][2];
-                value = set[attribute];
-                classification = set[3];
+                value = instance.get(i)[attribute];
+                classification = instance.get(i)[3];
                 if(value <= 15){
                     if(classification == 0){
                         count[0][0]++;
                     }
-                    else{
+                    else if (classification == 1){
                         count[1][0]++;
                     }
                 }
@@ -462,21 +472,27 @@ public class ID3 extends Controller<MOVE> {
                     if(classification == 0){
                         count[0][1]++;
                     }
-                    else{
+                    else if (classification == 1){
                         count[1][1]++;
                     }
                 }
-                return count;
+             //   return count;
             }
         }
-        return null;
+        //System.out.println(Arrays.toString(count[0]));
+        return count;
     }
 
     public double entropy(double posCount, double negCount){
         double size = posCount + negCount;
+        if(size == 0){
+            return 0;
+        }
+        System.out.println(negCount);
         double posProb = posCount/size;
         double negProb = negCount/size;
-        double entropy = - posProb * (Math.log(posProb)/Math.log(2)) - negProb * (Math.log(negProb)/Math.log(2));
+        double entropy = (-1 * posProb * (Math.log(posProb)/Math.log(2))) - (negProb * (Math.log(negProb)/Math.log(2)));
+      //  System.out.println("retentropy: " + entropy);
         return entropy;
 
     }
@@ -492,9 +508,11 @@ public class ID3 extends Controller<MOVE> {
         for(int i = 0; i < attributeCount[0].length; i++){
             totalPos += attributeCount[1][i];
             totalNeg += attributeCount[0][i];
+            System.out.println("totPos: " + totalPos + "totNeg: " + totalNeg);
         }
 
         entropy = entropy(totalPos, totalNeg);
+        //System.out.println(entropy);
         return entropy;
     }
 
@@ -503,11 +521,14 @@ public class ID3 extends Controller<MOVE> {
      */
     public double entropyOnPartition(ArrayList<int[]> instance, int attribute){
         double[][] count = getCount(instance, attribute);
+      //  System.out.println(Arrays.toString(count[0]));
         double entropy = 0;
         double temptropy = 0;
         double countSum = 0;
         for(int i = 0; i < count[0].length; i++){
+          //  System.out.println(count[1][i]);
             temptropy = entropy(count[0][i], count[1][i]);
+         //   System.out.println(temptropy);
             countSum = count[0][i] + count[1][i];
             entropy += temptropy * (countSum/instance.size());
         }
