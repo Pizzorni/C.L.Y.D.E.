@@ -30,6 +30,7 @@ import pacman.controllers.examples.RandomNonRevPacMan;
 import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
+import pacman.controllers.decisiontree.ID3;
 import pacman.game.Game;
 import pacman.game.GameView;
 
@@ -57,17 +58,17 @@ public class Executor {
         //exec.runExperiment(new HillClimber(new StarterGhosts()), new StarterGhosts(),numTrials);
 
 		
-		/*
+
         //run a game in synchronous mode: game waits until controllers respond.
 		int delay=5;
 		boolean visual=true;
-		exec.runGame(new RandomPacMan(),new RandomGhosts(),visual,delay);
-  		 */
+		exec.runGame(new ID3(new StarterGhosts()),new StarterGhosts(),visual,delay);
+
 
         ///*
         //run the game in asynchronous mode.
         // attemping to fine tune evolutionary computation parameters
-        boolean visual = true;
+      //  boolean visual = true;
         int numGen = 5;
         int popSize = 10;
         double[] maxes = new double[8];
@@ -115,19 +116,19 @@ public class Executor {
 
         //exec.evolutionaryStrategy(5,10,5,visual);
 //
-        int[] scores = new int[100];
-        int max = 0;
-        double avg = 0;
-        for (int i = 0; i < 100; i++) {
-            scores[i] = exec.simulatedAnnealing(100000, 0.003);
-            avg += scores[i];
-            max = (max < scores[i]) ? scores[i] : max;
-            System.out.println("Trial: " + i + " Score: " + scores[i]);
-        }
-        avg = avg / 100;
-        System.out.println("Max: " + max + " Avg: " + avg);
+//        int[] scores = new int[100];
+//        int max = 0;
+//        double avg = 0;
+//        for (int i = 0; i < 100; i++) {
+//            scores[i] = exec.simulatedAnnealing(100000, 0.003);
+//            avg += scores[i];
+//            max = (max < scores[i]) ? scores[i] : max;
+//            System.out.println("Trial: " + i + " Score: " + scores[i]);
+//        }
+//        avg = avg / 100;
+//        System.out.println("Max: " + max + " Avg: " + avg);
 
-        //exec.runGameTimed(new HillClimber(new StarterGhosts()),new StarterGhosts(),visual);
+      //  exec.runGameTimed(new ID3(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
         //*/
 		
@@ -490,7 +491,7 @@ public class Executor {
     }
 
     /**
-     * Implementation of Evolutionary Strategy and Genetic Programming in one. Evolves A* heuristic through either
+     * Implementation of Evolutionary Strategy and Genetic Programming for phase 2. Evolves A* heuristic through either
      * mutation or reproduction as documented below.
      * Implemented here due to performance issues when implemented as a controller. Visual not added due to
      * complications arising from running several hundreds of games. Also a huge performance hit to do so.
@@ -500,11 +501,11 @@ public class Executor {
      * @param min         Minimum random value to be used in mutation step. Used mostly in simulated annealing.
      * @param max         Maximum random value to be used in mutation step. Used mostly in simulated annealing.
      * @param genOrEvol   Dictates whether we will use an Evolutionary Strategy or Genetic Programming.
-     *                    If 0, Evol. Strat. If 1, Genetic Programming.
+     *                    If 0, Evol. Strat. If 1, Genetic Programming. If 2, does a combination.
      * @return Returns an array containing the Maximum score across all generations and the average scores of
      * all generations. Provided for fine tuning of parameters and statistical analysis in part 2.
      */
-    private double[] evolutionaryComputation(int generations, int popSize, int min, int max, int genOrEvol) {
+    private double[] evolutionaryComputationP#(int generations, int popSize, int min, int max, int genOrEvol) {
         int rnmin = min;
         int rnmax = max;
         Game game = new Game(0);
