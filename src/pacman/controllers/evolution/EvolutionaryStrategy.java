@@ -13,11 +13,9 @@ import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 /**
- * This class is the implementation of Astar search. Uses a priority queue sorted by cost to
- * choose which move to expand in the tree. Returns the original move that led to the
- * lowest and deepest cost move currently in the tree. Due to performance issues, can only evaluate
- * roughly 12 moves before timing out.
- *
+ * This controller implements a simple evolutionary strategy. The strategy revolves around generating initially
+ * random action sequences, evaluating their fitness (score), and then mutating the top 25% to repopulate.
+ * Members of the population are Candidate objects defined externally.
  */
 public class EvolutionaryStrategy extends Controller<MOVE> {
     // Default weights chosen somewhat at random empirically
@@ -65,7 +63,8 @@ public class EvolutionaryStrategy extends Controller<MOVE> {
         for(int i = 0; i < numGenerations; i++){
             // Iterate over current population
             for(Candidate candidate : population){
-                Game curGame = candidate.getGame();
+                Game curGame = game.copy();
+                candidate.setGame(curGame);
                 ArrayList<MOVE> actionSequence = candidate.getSequence();
                 // Execute action sequence
                 for(MOVE move : actionSequence){
@@ -97,7 +96,7 @@ public class EvolutionaryStrategy extends Controller<MOVE> {
                 ArrayList<MOVE> oldSeq = willMutate.getSequence();
                 ArrayList<MOVE> mutatedSeq = mutateActionSequence(oldSeq);
                 // Create new mutated candidate and add to population
-                Candidate mutated = new Candidate(willMutate.getGame(), mutatedSeq, 0);
+                Candidate mutated = new Candidate(game.copy(), mutatedSeq, 0);
                 population.add(mutated);
                 newPopSize++;
             }
@@ -152,60 +151,6 @@ public class EvolutionaryStrategy extends Controller<MOVE> {
 
 }
 
-/**
- * This class is represents an element of the population. Stores information like game being simulated, fitness, and
- * sequence of actions to be taken.
- *
- */
-class Candidate implements Comparable<Candidate> {
-    private Game game;
-    private ArrayList<MOVE> sequence;
-    private int fitness;
-
-    /**
-     * Constructor to build candidates of population
-     *
-     * @param game The game being simulated
-     */
-
-    public Candidate(Game game, ArrayList<MOVE> sequence, int fitness) {
-        this.game = game;
-        this.sequence = sequence;
-        this.fitness = fitness;
-    }
-
-    // Implement comparable so we can use priority queue to order nodes for us.
-    // Uses default integer comparison since lower cost is better
-    public int compareTo(Candidate other) {
-        return (-1 * Integer.compare(this.fitness, other.fitness));
-    }
-
-    // Setters and Getters
-
-    public void setGame(Game game){
-        this.game = game;
-    }
-
-    public void setSequence(ArrayList<MOVE> sequence){
-        this.sequence = sequence;
-    }
-
-    public void setFitness(int fitness){
-        this.fitness = fitness;
-    }
-
-    public Game getGame(){
-        return game;
-    }
-
-    public ArrayList<MOVE> getSequence(){
-        return sequence;
-    }
-
-    public int getFitness(){
-        return fitness;
-    }
-}
 
 
 
