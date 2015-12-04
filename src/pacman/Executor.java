@@ -11,6 +11,7 @@ import java.util.EnumMap;
 import java.util.Random;
 import pacman.controllers.Controller;
 import pacman.controllers.supervised.KNearestPacMan;
+import pacman.controllers.uninformed.DFS;
 import pacman.controllers.uninformed.DFSPacMan;
 import pacman.controllers.supervised.Perceptron;
 import pacman.controllers.HumanController;
@@ -25,7 +26,7 @@ import pacman.controllers.examples.RandomNonRevPacMan;
 import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
-import pacman.controllers.uninformed.IterDeepPacMan;
+import pacman.controllers.uninformed.DFS;
 import pacman.game.Game;
 import pacman.game.GameView;
 
@@ -67,7 +68,7 @@ public class Executor
 		boolean visual=true;
 //		exec.runGameTimed(new IterDeepPacMan(new StarterGhosts()), new StarterGhosts(), visual);
 //		exec.runGameTimed(new KNearestPacMan(), new StarterGhosts(), visual);
-		exec.runGameTimed(new Perceptron(), new StarterGhosts(), visual);
+		exec.runGameTimed(new DFS(new StarterGhosts()), new StarterGhosts(), visual);
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new DFSPacMan(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
