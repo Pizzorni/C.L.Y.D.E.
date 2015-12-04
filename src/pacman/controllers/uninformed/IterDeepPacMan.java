@@ -5,7 +5,8 @@ import pacman.game.Game;
 import java.util.EnumMap;
 import static pacman.game.Constants.*;
 
-/*
+/**
+ * Implements a controller using iterative deepening
  */
 public class IterDeepPacMan extends Controller<MOVE> {
     private static int SCORE = 40;
@@ -23,9 +24,11 @@ public class IterDeepPacMan extends Controller<MOVE> {
         this.spookies = spookies;
     }
 
-    /*
-     * Main funtion for get move
-     *      calls iterativeDeep which calls advanceGame
+    /**
+     * Evaluates current game state, then uses perceptron weights to decide what to do
+     * @param game A copy of the current game
+     * @param timeDue The time the next move is due
+     * @return move decision
      */
     public MOVE getMove(Game game,long timeDue) {
 
@@ -74,14 +77,15 @@ public class IterDeepPacMan extends Controller<MOVE> {
         return moves[best_move];
     }
 
-    /*
-     *  Iterative Deep
-     *      arguments: game, move, level_count
-     *      for the game passed in, advance each game by each move
+    /**
+     * for the game passed in, advance each game by each move
      *      and check if the found condition is met or we have reached
      *      the level max
      *      In this case the found condition is that the score has
      *      advanced by SCORE
+     * @param game
+     * @param move
+     * @param level_count
      */
     private void iterativeDeep(Game game, MOVE move, int level_count){
         if (!found) {
@@ -103,10 +107,11 @@ public class IterDeepPacMan extends Controller<MOVE> {
         }
     }
 
-    /*
-     *  advanceGame
-     *      arguments: game to advance, move to choose
-     *      Advances a game four times (to the next block) with the same move
+    /**
+     * Advances the game 4 times using the same move
+     *  4 advances moves PacMan one grid block
+     * @param game
+     * @param move
      */
     private void advanceGame(Game game, MOVE move){
         for (int j = 0; j < 4; j++) {

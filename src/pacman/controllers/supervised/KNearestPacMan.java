@@ -6,15 +6,8 @@ import pacman.game.Game;
 
 import static pacman.game.Constants.*;
 
-/*
- * Pac-Man controller as part of the starter package - simply upload this file as a zip called
- * MyPacMan.zip and you will be entered into the rankings - as simple as that! Feel free to modify 
- * it or to start from scratch, using the classes supplied with the original software. Best of luck!
- * 
- * This controller utilises 3 tactics, in order of importance:
- * 1. Get away from any non-edible ghost that is in close proximity
- * 2. Go after the nearest edible ghost
- * 3. Go to the nearest pill/power pill
+/**
+ * This implements a controller with K Nearest Neighbor algorithm
  */
 public class KNearestPacMan extends Controller<MOVE>
 {
@@ -23,6 +16,7 @@ public class KNearestPacMan extends Controller<MOVE>
 	private int closestGhostDist;
 	private int closestPillDist;
 	private static int K = 3;
+
 	/* This is the training data
 	 *
 	 * It is an array of arrays
@@ -60,7 +54,12 @@ public class KNearestPacMan extends Controller<MOVE>
 							{Integer.MAX_VALUE, 20, 1}};
 
 
-
+	/**
+	 * Evaluates current game state, then uses training data to decide what to do
+	 * @param game A copy of the current game
+	 * @param timeDue The time the next move is due
+	 * @return move decision
+	 */
 	public MOVE getMove(Game game, long timeDue) {
 
 		int current=game.getPacmanCurrentNodeIndex();
@@ -73,10 +72,14 @@ public class KNearestPacMan extends Controller<MOVE>
 			return game.getNextMoveAwayFromTarget(game.getPacmanCurrentNodeIndex(),game.getGhostCurrentNodeIndex(closestGhost),DM.PATH);
 		else
 			//run to nearest pill
-			return game.getNextMoveTowardsTarget(current,closestPill,DM.PATH);
+			return game.getNextMoveTowardsTarget(current, closestPill, DM.PATH);
 
 	}
 
+	/**
+	 * Evaluate which K instances are nearest the current game state
+	 * @return array with K nearest instances
+	 */
 	private int evaluateDistances(){
 		//given closest ghost and pill evaluate which instances are closest K
 		int[] distances = new int[K];
@@ -123,6 +126,11 @@ public class KNearestPacMan extends Controller<MOVE>
 		return sum/K;
 	}
 
+	/**
+	 * 	Evaluates game state
+	 * 	Gets distance of the closest ghost and closest pill
+	 * @param game
+	 */
 	private void gatherData(Game game){
 		//get distance of nearest non-edible ghost and distance to nearest pill
 

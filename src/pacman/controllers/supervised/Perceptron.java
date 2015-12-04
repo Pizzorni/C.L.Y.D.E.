@@ -7,8 +7,8 @@ import pacman.game.Game;
 
 import static pacman.game.Constants.*;
 
-/*
- * Perceptron woo!
+/**
+ * This implements a Perceptron based controller
  */
 public class Perceptron extends Controller<MOVE> {
 	private GHOST closestGhost;

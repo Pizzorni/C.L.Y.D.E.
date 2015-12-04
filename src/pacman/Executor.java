@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Random;
 import pacman.controllers.Controller;
+import pacman.controllers.supervised.KNearestPacMan;
 import pacman.controllers.uninformed.DFSPacMan;
 import pacman.controllers.supervised.Perceptron;
 import pacman.controllers.HumanController;
@@ -24,6 +25,7 @@ import pacman.controllers.examples.RandomNonRevPacMan;
 import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
+import pacman.controllers.uninformed.IterDeepPacMan;
 import pacman.game.Game;
 import pacman.game.GameView;
 
@@ -60,14 +62,16 @@ public class Executor
 		exec.runGame(new RandomPacMan(),new RandomGhosts(),visual,delay);
   		 */
 		
-		/*
+
 		//run the game in asynchronous mode.
 		boolean visual=true;
-		exec.runGameTimedPerceptron(new StarterGhosts(), 100);
+//		exec.runGameTimed(new IterDeepPacMan(new StarterGhosts()), new StarterGhosts(), visual);
+//		exec.runGameTimed(new KNearestPacMan(), new StarterGhosts(), visual);
+		exec.runGameTimed(new Perceptron(), new StarterGhosts(), visual);
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new DFSPacMan(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
-		*/
+
 		
 		/*
 		//run the game in asynchronous mode but advance as soon as both controllers are ready  - this is the mode of the competition.
@@ -77,13 +81,13 @@ public class Executor
 		exec.runGameTimedSpeedOptimised(new RandomPacMan(),new RandomGhosts(),fixedTime,visual);
 		*/
 		
-
+		/*
 		//run game in asynchronous mode and record it to file for replay at a later stage.
 		boolean visual=true;
 		String fileName="replay.txt";
 		exec.runGameTimedRecorded(new HumanController(new KeyBoardInput()),new RandomGhosts(),visual,fileName);
 		//exec.replayGame(fileName,visual);
-
+		*/
 	}
 	
     /**
