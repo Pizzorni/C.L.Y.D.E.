@@ -8,15 +8,18 @@ import java.util.ArrayList;
 public class DNode {
 
     private DNode parent;
-    private DNode[] children;
-    private int numAttributes;
+    private ArrayList<DNode> children;
     private ArrayList<int[]> Instances;
+    private int attribute;
+    private int decision;
 
-    public DNode(DNode parent, DNode[] children, int numAttributes, ArrayList<int[]> instances) {
+
+    public DNode(DNode parent, ArrayList<int[]> instances, int decision, int attribute) {
         this.parent = parent;
-        this.children = children;
-        this.numAttributes = numAttributes;
+        this.children = new ArrayList<>();
         this.Instances = instances;
+        this.attribute = attribute;
+        this.decision = decision;
     }
 
     public DNode getParent() {
@@ -27,20 +30,22 @@ public class DNode {
         this.parent = parent;
     }
 
-    public DNode[] getChildren() {
+    public ArrayList<DNode> getChildren() {
         return children;
     }
+    public int getDecision() {
+        return decision;
+    }
 
-    public void setChildren(DNode[] children) {
+    public void setDecision(int decision) {
+        this.decision = decision;
+    }
+
+    public void setChildren(ArrayList<DNode> children) {
         this.children = children;
     }
-
-    public int getNumAttributes() {
-        return numAttributes;
-    }
-
-    public void setNumAttributes(int numAttributes) {
-        this.numAttributes = numAttributes;
+    public void setChild(DNode child){
+        this.children.add(child);
     }
 
     public ArrayList<int[]> getInstances() {
@@ -49,6 +54,14 @@ public class DNode {
 
     public void setInstances(ArrayList<int[]> instances) {
         Instances = instances;
+    }
+
+    public int getAttribute() {
+        return attribute;
+    }
+
+    public void setAttribute(int attribute) {
+        this.attribute = attribute;
     }
 
 
