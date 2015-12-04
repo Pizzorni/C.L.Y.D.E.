@@ -1,1 +1,8 @@
 *.swp
+out
+*.iml
+tags
+.idea
+idea
+*.DS_Store
+replay.txt
