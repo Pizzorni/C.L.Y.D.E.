@@ -1,6 +1,5 @@
 package pacman.controllers.informed;
 
-import java.util.ArrayList;
 
 import pacman.controllers.Controller;
 import pacman.game.Game;
@@ -47,7 +46,7 @@ public class HillClimber extends Controller<MOVE> {
         for (int i = 0; i < 5; i++) {
             games[i] = game.copy();
         }
-        int maxScore = 0;
+        int maxScore = Integer.MIN_VALUE;
         int maxIndex = 0;
         int tempScore;
 
@@ -58,8 +57,6 @@ public class HillClimber extends Controller<MOVE> {
                 games[i].advanceGame(moves[i],spookies.getMove(games[i].copy(),-1));
             }
             tempScore = games[i].getScore();
-            // If we died, set score to 0. Small simple heuristic hack.
-            if(games[i].gameOver()) tempScore = 0;
             // Find max score and which move was responsible for it
             if(maxScore < tempScore) {
                 maxScore = tempScore;
