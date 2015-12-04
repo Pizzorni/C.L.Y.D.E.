@@ -13,11 +13,17 @@ import java.util.Arrays;
 import java.util.PriorityQueue;
 
 import pacman.controllers.Controller;
+<<<<<<< HEAD
+import pacman.controllers.supervised.KNearestPacMan;
+import pacman.controllers.uninformed.DFS;
+import pacman.controllers.supervised.Perceptron;
+=======
 import pacman.controllers.evolution.EvolutionaryStrategy;
 import pacman.controllers.evolution.GeneticProgramming;
 import pacman.controllers.informed.Astar;
 import pacman.controllers.informed.HillClimber;
 import pacman.controllers.uninformed.DFSPacMan;
+>>>>>>> master
 import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;
 import pacman.controllers.examples.AggressiveGhosts;
@@ -30,7 +36,12 @@ import pacman.controllers.examples.RandomNonRevPacMan;
 import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
+<<<<<<< HEAD
+import pacman.controllers.uninformed.DFS;
+import pacman.controllers.uninformed.BFS;
+=======
 import pacman.controllers.decisiontree.ID3;
+>>>>>>> master
 import pacman.game.Game;
 import pacman.game.GameView;
 
@@ -62,6 +73,21 @@ public class Executor {
         //run a game in synchronous mode: game waits until controllers respond.
 		int delay=5;
 		boolean visual=true;
+<<<<<<< HEAD
+		exec.runGame(new RandomPacMan(),new RandomGhosts(),visual,delay);
+  		 */
+		
+
+		//run the game in asynchronous mode.
+		boolean visual=true;
+//		exec.runGameTimed(new IterDeepPacMan(new StarterGhosts()), new StarterGhosts(), visual);
+//		exec.runGameTimed(new KNearestPacMan(), new StarterGhosts(), visual);
+		exec.runGameTimed(new BFS(new StarterGhosts()), new StarterGhosts(), visual);
+//		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
+//		exec.runGameTimed(new DFSPacMan(new StarterGhosts()),new StarterGhosts(),visual);
+//		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
+
+=======
 		exec.runGame(new ID3(new StarterGhosts()),new StarterGhosts(),visual,delay);
 
 
@@ -131,6 +157,7 @@ public class Executor {
       //  exec.runGameTimed(new ID3(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
         //*/
+>>>>>>> master
 		
 		/*
 		//run the game in asynchronous mode but advance as soon as both controllers are ready  - this is the mode of the competition.
@@ -146,9 +173,15 @@ public class Executor {
 		String fileName="replay.txt";
 		exec.runGameTimedRecorded(new HumanController(new KeyBoardInput()),new RandomGhosts(),visual,fileName);
 		//exec.replayGame(fileName,visual);
+<<<<<<< HEAD
+		*/
+	}
+	
+=======
 		 */
     }
 
+>>>>>>> master
     /**
      * For running multiple games without visuals. This is useful to get a good idea of how well a controller plays
      * against a chosen opponent: the random nature of the game means that performance can vary from game to game.
@@ -219,6 +252,103 @@ public class Executor {
      * @param ghostController  The Ghosts controller
      * @param visual           Indicates whether or not to use visuals
      */
+<<<<<<< HEAD
+    public void runGameTimed(Controller<MOVE> pacManController,Controller<EnumMap<GHOST,MOVE>> ghostController,boolean visual)
+	{
+		Game game=new Game(0);
+		
+		GameView gv=null;
+		
+		if(visual)
+			gv=new GameView(game).showGame();
+		
+		if(pacManController instanceof HumanController)
+			gv.getFrame().addKeyListener(((HumanController)pacManController).getKeyboardInput());
+				
+		new Thread(pacManController).start();
+		new Thread(ghostController).start();
+		
+		while(!game.gameOver())
+		{
+			pacManController.update(game.copy(),System.currentTimeMillis()+DELAY);
+			ghostController.update(game.copy(),System.currentTimeMillis()+DELAY);
+
+			try
+			{
+				Thread.sleep(DELAY);
+			}
+			catch(InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+
+	        game.advanceGame(pacManController.getMove(),ghostController.getMove());	   
+	        
+	        if(visual)
+	        	gv.repaint();
+		}
+		
+		pacManController.terminate();
+		ghostController.terminate();
+	}
+
+	public void runGameTimedPerceptron(Controller<EnumMap<GHOST,MOVE>> ghostController, int training)
+	{
+		int[][] instances = {
+				{5, 2},
+				{5, 5},
+				{5, 10},
+				{5, 15},
+				{5, 20},
+				{10, 2},
+				{10, 5},
+				{10, 10},
+				{10, 15},
+				{10, 20},
+				{15, 2},
+				{15, 5},
+				{15, 10},
+				{15, 15},
+				{15, 20},
+				{20, 2},
+				{20, 5},
+				{20, 10},
+				{20, 15},
+				{20, 20},
+				{Integer.MAX_VALUE, 5},
+				{Integer.MAX_VALUE, 10},
+				{Integer.MAX_VALUE, 15},
+				{Integer.MAX_VALUE, 20}};
+
+		int[] expected = {-1, -1, 1, -1, -1, -1, 1, 1, -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+		double[] weights = new double[2];
+
+		int i, j;
+		weights[0] = Math.random();
+		weights[1] = Math.random();
+		System.out.printf("initial weights\n[%f, %f]\n", weights[0], weights[1]);
+		// TRAIN THE PERCEPTRON
+		for (i = 0; i < training; i++){
+			int non_match = 0;
+			for (j = 0; j < instances.length; j++){
+				double dot = weights[0]*instances[j][0] + weights[1]*instances[j][1];
+				//System.out.println(dot);
+				if (expected[j] != Math.signum(dot)){
+					non_match++;
+					//adjust weight
+					weights[0] += 1/3 * (double)instances[j][0];
+					weights[1] += 1/3 * (double)instances[j][1];
+				}
+			}
+			System.out.printf("%d not a match\n", non_match);
+		}
+		System.out.printf("final weights\n[%f, %f]\n", weights[0], weights[1]);
+		//USE THE PERCEPTRON
+		//runGameTimed(new Perceptron(weights), ghostController, true);
+	}
+	
+=======
     public void runGameTimed(Controller<MOVE> pacManController, Controller<EnumMap<GHOST, MOVE>> ghostController, boolean visual) {
         Game game = new Game(0);
 
@@ -253,6 +383,7 @@ public class Executor {
         ghostController.terminate();
     }
 
+>>>>>>> master
     /**
      * Run the game in asynchronous mode but proceed as soon as both controllers replied. The time limit still applies so
      * so the game will proceed after 40ms regardless of whether the controllers managed to calculate a turn.
