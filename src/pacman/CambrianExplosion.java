@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.ServiceConfigurationError;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.informed.Astar;
 import pacman.game.Game;
+import java.util.Set;
 
 /**
  * Created by giorgio on 12/4/15.
@@ -32,7 +31,6 @@ public class CambrianExplosion {
     private PriorityQueue<Organism> combinationPop;
 
 
-
     public CambrianExplosion(int numGen, int popSize, int xfactor, double temp, double deltaTemp) {
         this.NUM_GEN = numGen;
         this.POP_SIZE = popSize;
@@ -49,7 +47,6 @@ public class CambrianExplosion {
     public void explode() {
         // Initialize populations
         ArrayList<Organism> initialPopulation = new ArrayList<>();
-        EvolThread[] threads = new EvolThread[3];
 
         int initPopSize = POP_SIZE * INIT_XFACTOR;
 
@@ -68,30 +65,59 @@ public class CambrianExplosion {
             combinationPop.add(new Organism(orgo));
         }
 
+        ArrayList<Future> threads = new ArrayList<>();
         ExecutorService executor = Executors.newFixedThreadPool(3);
-        EvolThread mutateThread = new EvolThread(mutatePop, MUTATION, 50, -50, NUM_GEN, POP_SIZE, INIT_POP_SIZE);
-        EvolThread crossoverThread = new EvolThread(crossoverPop, CROSSOVER, 50, -50, NUM_GEN, POP_SIZE, INIT_POP_SIZE);
-        EvolThread combinationThread = new EvolThread(combinationPop, COMBINATION, 50, -50, NUM_GEN, POP_SIZE, INIT_POP_SIZE);
+        EvolThread mutateThread = new EvolThread(mutatePop, MUTATION, 50, -50, NUM_GEN, POP_SIZE,
+                INIT_POP_SIZE, TEMPERATURE, DELTA_TEMP);
+        EvolThread crossoverThread = new EvolThread(crossoverPop, CROSSOVER, 50, -50, NUM_GEN, POP_SIZE,
+                INIT_POP_SIZE, TEMPERATURE, DELTA_TEMP);
+        EvolThread combinationThread = new EvolThread(combinationPop, COMBINATION, 50, -50, NUM_GEN, POP_SIZE,
+                INIT_POP_SIZE, TEMPERATURE, DELTA_TEMP);
 
-        Future mutateDone = executor.submit(mutateThread);
-        Future crossoverDone = executor.submit(crossoverThread);
-        Future combinationDone = executor.submit(combinationThread);
+        threads.add(executor.submit(mutateThread));
+        threads.add(executor.submit(crossoverThread));
+        threads.add(executor.submit(combinationThread));
+
+        executor.shutdown();
+        try{
+            executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+        }
+        catch(java.lang.InterruptedException e){
+
+        }
 
 
+        ArrayList<EvolResult> results = new ArrayList<>();
 
-        boolean done = true;
-        while(done){
-            if(mutateDone != null && crossoverDone!= null & combinationDone != null){
-                done = false;
+        for(Future f : threads){
+            try{
+                results.add((EvolResult)f.get());
+            }
+            catch (java.util.concurrent.ExecutionException e){
+
+            }
+            catch(java.lang.InterruptedException e){
+
             }
         }
 
-//        EvolThread mutateThread = new EvolThread(mutatePop, MUTATION, 50, -50);
-//        EvolThread crossoverThread = new EvolThread(crossoverPop, CROSSOVER, 50, -50);
-//        EvolThread combinationThread = new EvolThread(combinationPop, COMBINATION, 50, -50);
+        String out = "";
 
+        for(EvolResult r: results){
+            String weights = "[ ";
+            for(int weight : r.getBestWeights()){
+                weights += weight + " ";
+            }
+            weights+="]";
+            out = String.format("%-11s Max: %-4d Avg: %-6.2f Weights: %-20s ", r.getAlgotype(), r.getMaxScore(),
+                    r.getAvgScore(), weights);
+
+            System.out.println(out);
+
+        }
 
     }
+
 
 
     /**
@@ -153,7 +179,8 @@ public class CambrianExplosion {
     }
 
 
-    class EvolThread implements Runnable {
+    class EvolThread implements Callable {
+
         private PriorityQueue<Organism> population;
         private int numGen;
         private int popSize;
@@ -163,8 +190,12 @@ public class CambrianExplosion {
         private int algoType;
         private int rnmax;
         private int rnmin;
+        private double temp;
+        private double deltaTemp;
 
-        public EvolThread(PriorityQueue<Organism> pop, int algoType, int max, int min, int numGen, int popSize, int initPopSize) {
+        public EvolThread(PriorityQueue<Organism> pop, int algoType, int max, int min, int numGen, int popSize,
+                          int initPopSize, double temp, double deltaTemp){
+
             this.population = pop;
             this.algoType = algoType;
             this.rnmax = max;
@@ -172,9 +203,11 @@ public class CambrianExplosion {
             this.numGen = numGen;
             this.popSize = popSize;
             this.initPopSize = initPopSize;
+            this.temp = temp;
+            this.deltaTemp = deltaTemp;
         }
 
-        public void run() {
+        public EvolResult call() {
             PriorityQueue<Organism> sortedPopulation = new PriorityQueue<>();
             ArrayList<Organism> selectedPopulation = new ArrayList<>();
             Executor exec = new Executor();
@@ -187,10 +220,12 @@ public class CambrianExplosion {
             int[] curWeights;
             int curScore;
             int maxScore = Integer.MIN_VALUE;
-            double avgScore = 0.0;
+            double avgScore = 0;
             int tempPopSize;
             int randIndex;
             int randIndexTwo;
+            int[] bestWeights;
+            String algoName = "";
 
             Random rn = new Random();
 
@@ -208,7 +243,10 @@ public class CambrianExplosion {
                     curScore = curGame.getScore();
                     orgo.setFitness(curScore);
                     avgScore += curScore;
-                    maxScore = (maxScore < curScore) ? curScore : maxScore;
+                    if(maxScore < curScore){
+                        maxScore = curScore;
+                        bestWeights = orgo.getWeights();
+                    }
                     sortedPopulation.add(orgo);
                 }
                 genMaxScores[genIter] = maxScore;
@@ -323,25 +361,80 @@ public class CambrianExplosion {
                     }
                 }
 
-                String algo = " ";
-                switch (algoType) {
-                    case MUTATION:
-                        algo = "Mutation";
+                switch(algoType){
+                    case MUTATION:  algoName = "Mutation";
                         break;
-                    case CROSSOVER:
-                        algo = "Crossover";
+                    case CROSSOVER: algoName = "Crossover";
                         break;
-                    case COMBINATION:
-                        algo = "Combination";
+                    case COMBINATION: algoName = "Combination";
+                        break;
                 }
 
-                System.out.print("Algorithm: " + algo);
-                System.out.print(" Generation Number: " + genIter);
-                System.out.println(" Max: " + genMaxScores[genIter] + " Avg: " + genAvgScores[genIter]);
-
+                System.out.println(algoName + " --- Max: " + genMaxScores[genIter] + " Avg: "
+                        + genAvgScores[genIter]);
             }
+
+            // Generations done, return some statistics in a wrapper obj
+            int maxAllGen = 0;
+            double avgAllGen = 0;
+            for(int i = 0; i < numGen; i ++){
+                maxAllGen = (maxAllGen < genMaxScores[i]) ? genMaxScores[i] : maxAllGen;
+                avgAllGen += genAvgScores[i];
+            }
+            avgAllGen = avgAllGen/numGen;
+            Organism best = population.remove();
+
+            EvolResult ret = new EvolResult(algoName,best.getWeights(),maxAllGen,avgAllGen);
+            return ret;
+
         }
 
+    }
+
+    class EvolResult{
+        public EvolResult(String algoType, int[] bestWeights, int maxScore, double avgScore) {
+            this.algoType = algoType;
+            this.bestWeights = bestWeights;
+            this.maxScore = maxScore;
+            this.avgScore = avgScore;
+        }
+
+        public String getAlgotype() {
+            return algoType;
+        }
+
+        public void setAlgotype(String algoType) {
+            this.algoType = algoType;
+        }
+
+        public int[] getBestWeights() {
+            return bestWeights;
+        }
+
+        public void setBestWeights(int[] bestWeights) {
+            this.bestWeights = bestWeights;
+        }
+
+        public int getMaxScore() {
+            return maxScore;
+        }
+
+        public void setMaxScore(int maxScore) {
+            this.maxScore = maxScore;
+        }
+
+        public double getAvgScore() {
+            return avgScore;
+        }
+
+        public void setAvgScore(double avgScore) {
+            this.avgScore = avgScore;
+        }
+
+        private String algoType;
+        private int[] bestWeights;
+        private int maxScore;
+        private double avgScore;
     }
 }
 
