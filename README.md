@@ -12,7 +12,7 @@ we learn in class.
   * ~~Breadth First~~
   * ~~Depth First~~
   * ~~Iterative Deepening~~
-* Informed Search
+* ~~Informed Search~~
   * ~~Hill Climber~~
   * ~~A*~~
   * ~~Simulated Annealing~~
@@ -21,7 +21,7 @@ we learn in class.
   * ~~Genetic Algorithms~~
 * ~~Adversarial Search~~
   * ~~Alpha Beta Pruning~~
-* Supervised Learning
+* ~~Supervised Learning~~
   * ~~k-Nearest Neighbor~~
   * ~~Perceptron~~
 * Decision Trees
