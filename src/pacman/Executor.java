@@ -60,14 +60,14 @@ public class Executor
 		exec.runGame(new RandomPacMan(),new RandomGhosts(),visual,delay);
   		 */
 		
-		///*
+		/*
 		//run the game in asynchronous mode.
 		boolean visual=true;
-		exec.runGameTimedPerceptron(new StarterGhosts(), 10);
+		exec.runGameTimedPerceptron(new StarterGhosts(), 100);
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new DFSPacMan(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
-		//*/
+		*/
 		
 		/*
 		//run the game in asynchronous mode but advance as soon as both controllers are ready  - this is the mode of the competition.
@@ -77,13 +77,13 @@ public class Executor
 		exec.runGameTimedSpeedOptimised(new RandomPacMan(),new RandomGhosts(),fixedTime,visual);
 		*/
 		
-		/*
+
 		//run game in asynchronous mode and record it to file for replay at a later stage.
 		boolean visual=true;
 		String fileName="replay.txt";
 		exec.runGameTimedRecorded(new HumanController(new KeyBoardInput()),new RandomGhosts(),visual,fileName);
 		//exec.replayGame(fileName,visual);
-		 */
+
 	}
 	
     /**
@@ -197,7 +197,7 @@ public class Executor
 		ghostController.terminate();
 	}
 
-	public void runGameTimedPerceptron(Controller<EnumMap<GHOST,MOVE>> ghostController, int trials)
+	public void runGameTimedPerceptron(Controller<EnumMap<GHOST,MOVE>> ghostController, int training)
 	{
 		int[][] instances = {
 				{5, 2},
@@ -227,76 +227,30 @@ public class Executor
 
 		int[] expected = {-1, -1, 1, -1, -1, -1, 1, 1, -1, -1, -1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-		double[] weights = new double[instances.length];
+		double[] weights = new double[2];
 
-		int i;
-
-		for (i = 0; i < instances.length; i++) {
-			weights[i] = Math.random()*10;
-		}
-
-
-		System.out.printf("Starting weights:\n");
-		printWeights(weights);
-
-		Perceptron pacManController = new Perceptron(instances, weights);
-
-		Random rnd=new Random(0);
-		Game game;
-		int score;
-		int[] instCount;
-
-		for (int j = 0; j < trials; j++) {
-			game = new Game(rnd.nextLong());
-
-			new Thread(pacManController).start();
-			new Thread(ghostController).start();
-
-			while (!game.gameOver()) {
-				pacManController.update(game.copy(), System.currentTimeMillis() + DELAY);
-				ghostController.update(game.copy(), System.currentTimeMillis() + DELAY);
-
-				try {
-					Thread.sleep(DELAY);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+		int i, j;
+		weights[0] = Math.random();
+		weights[1] = Math.random();
+		System.out.printf("initial weights\n[%f, %f]\n", weights[0], weights[1]);
+		// TRAIN THE PERCEPTRON
+		for (i = 0; i < training; i++){
+			int non_match = 0;
+			for (j = 0; j < instances.length; j++){
+				double dot = weights[0]*instances[j][0] + weights[1]*instances[j][1];
+				//System.out.println(dot);
+				if (expected[j] != Math.signum(dot)){
+					non_match++;
+					//adjust weight
+					weights[0] += 1/3 * (double)instances[j][0];
+					weights[1] += 1/3 * (double)instances[j][1];
 				}
-
-				game.advanceGame(pacManController.getMove(), ghostController.getMove());
-
 			}
-
-			//get 4 most used instances
-			//if score is less than bad score, decrement those weights
-			//if score is greater than bad score, increment those weights
-			instCount = pacManController.getInstanceNums();
-			score = game.getScore();
-			System.out.printf("Score for game %d: %d\n", j, score);
-/			/*
-			if (score < BAD_SCORE)
-				for (i = 0; i < 4; i++)
-					weights[instCount[i]] *= 0.9;
-			else
-				for (i = 0; i < 4; i++)
-					weights[instCount[i]] *= 1.1;
-			*/
-			if (j%10 == 0) { printWeights(weights); }
-
+			System.out.printf("%d not a match\n", non_match);
 		}
-		System.out.printf("Final weights:\n");
-		printWeights(weights);
-
-		pacManController.terminate();
-		ghostController.terminate();
-	}
-
-	private void printWeights(double[] weights){
-		System.out.print("[");
-		for(int i = 0; i < weights.length; i++) {
-			System.out.printf("%f, ", weights[i]);
-			if (i == weights.length/2) { System.out.println(); }
-		}
-		System.out.print("]\n");
+		System.out.printf("final weights\n[%f, %f]\n", weights[0], weights[1]);
+		//USE THE PERCEPTRON
+		//runGameTimed(new Perceptron(weights), ghostController, true);
 	}
 	
     /**
