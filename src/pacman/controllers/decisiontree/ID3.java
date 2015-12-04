@@ -27,35 +27,98 @@ public class ID3 extends Controller<MOVE> {
     private final int ATTR_GHOST = 0;
     private final int ATTR_PILL = 1;
     private final int ATTR_POWER = 2;
+    private DNode rootNode;
 
 
-    // ghost, then pill
+    // ghost, then pill, then power pill
     // 0 run, 1 target pill
     private static int[][] INSTANCES= {
-            {5, 2, 0},
-            {5, 5, 0},
-            {5, 10, 0},
-            {5, 15, 0},
-            {5, 20, 0},
-            {10, 2, 1},
-            {10, 5, 1},
-            {10, 10, 0},
-            {10, 15, 0},
-            {10, 20, 0},
-            {15, 2, 1},
-            {15, 5, 1},
-            {15, 10, 1},
-            {15, 15, 1},
-            {15, 20, 0},
-            {20, 2, 1},
-            {20, 5, 1},
-            {20, 10, 1},
-            {20, 15, 1},
-            {20, 20, 1},
-            {Integer.MAX_VALUE, 5, 1},
-            {Integer.MAX_VALUE, 10, 1},
-            {Integer.MAX_VALUE, 15, 1},
-            {Integer.MAX_VALUE, 20, 1}};
+            {5, 2, 5, 0},
+            {5, 5, 5, 0},
+            {5, 10, 5, 0},
+            {5, 15, 5, 0},
+            {5, 20, 5, 0},
+            {5, 2, 20, 0},
+            {5, 5, 20, 0},
+            {5, 10, 20, 0},
+            {5, 15, 20, 0},
+            {5, 20, 20, 0},
+            {10, 2, 5, 0},
+            {10, 5, 5, 0},
+            {10, 10, 5, 0},
+            {10, 15, 5, 0},
+            {10, 20, 5, 0},
+            {10, 2, 20, 0},
+            {10, 5, 20, 0},
+            {10, 10, 20, 0},
+            {10, 15, 20, 0},
+            {10, 20, 20, 0},
+            {15, 2, 5, 1},
+            {15, 5, 5, 1},
+            {15, 10, 5, 1},
+            {15, 15, 5, 1},
+            {15, 20, 5, 1},
+            {15, 2, 10, 1},
+            {15, 5, 10, 1},
+            {15, 10, 10, 1},
+            {15, 15, 10, 1},
+            {15, 20, 10, 1},
+            {15, 2, 20, 0},
+            {15, 5, 20, 0},
+            {15, 10, 20, 0},
+            {15, 15, 20, 0},
+            {15, 20, 20, 0},
+            {20, 2, 5, 1},
+            {20, 5, 5, 1},
+            {20, 10, 5, 1},
+            {20, 15, 5, 1},
+            {20, 20, 5, 1},
+            {20, 2, 10, 1},
+            {20, 5, 10, 1},
+            {20, 10, 10, 1},
+            {20, 15, 10, 1},
+            {20, 20, 10, 1},
+            {20, 2, 20, 0},
+            {20, 5, 20, 0},
+            {20, 10, 20, 0},
+            {20, 15, 20, 0},
+            {20, 20, 20, 0},
+            {25, 2, 5, 1},
+            {25, 5, 5, 1},
+            {25, 10, 5, 1},
+            {25, 15, 5, 1},
+            {25, 20, 5, 1},
+            {25, 2, 10, 1},
+            {25, 5, 10, 1},
+            {25, 10, 10, 1},
+            {25, 15, 10, 1},
+            {25, 20, 10, 1},
+            {25, 2, 20, 1},
+            {25, 5, 20, 1},
+            {25, 10, 20, 1},
+            {25, 15, 20, 1},
+            {25, 20, 20, 1},
+            {25, 30, 5, 0},
+            {25, 30, 5, 0},
+            {25, 30, 5, 0},
+            {25, 30, 5, 0},
+            {25, 30, 5, 0},
+            {25, 30, 10, 0},
+            {25, 30, 10, 0},
+            {25, 30, 10, 0},
+            {25, 30, 10, 0},
+            {25, 30, 10, 0},
+            {25, 30, 20, 0},
+            {25, 30, 20, 0},
+            {25, 30, 20, 0},
+            {25, 30, 20, 0},
+            {25, 30, 20, 0},
+
+//            {Integer.MAX_VALUE, 5, 1},
+//            {Integer.MAX_VALUE, 10, 1},
+//            {Integer.MAX_VALUE, 15, 1},
+//            {Integer.MAX_VALUE, 20, 1}
+                 };
 
 
     /**
@@ -65,6 +128,12 @@ public class ID3 extends Controller<MOVE> {
      */
     public ID3(Controller<EnumMap<GHOST, MOVE>> spookies) {
         this.spookies = spookies; // SPOOKIES
+        this.rootNode = new DNode(null, null, 0, 0);
+        ArrayList<int[]> rootInstances = new ArrayList<>();
+        for(int i = 0; i < INSTANCES.length; i++){
+            rootInstances.add(INSTANCES[i]);
+        }
+        rootNode.setInstances(rootInstances);
     }
 
     /**
@@ -73,21 +142,136 @@ public class ID3 extends Controller<MOVE> {
      * @return Returns the move that gets it the highest score in its immediate vicinity
      */
     public MOVE getMove(Game game, long timeDue) {
-
-        DNode rootNode = new DNode(null, null, NUMATTRIBUTES, null);
-        ArrayList<int[]> rootInstances = new ArrayList<>();
-        for(int i = 0; i < 24; i++){
-            rootInstances.add(INSTANCES[i]);
-        }
-        rootNode.setInstances(rootInstances);
-
-
-
-
+        
 
 
         return MOVE.LEFT;
 
+    }
+
+    public void buildTree(DNode node){
+        int numBranches = 2;
+        boolean baseCase = checkLeaf(node);
+        if(baseCase){
+            node.setDecision(node.getInstances().get(0)[3]);
+        }
+        else{
+            int attributeToPick = chooseAttribute(node.getInstances());
+            numBranches = (attributeToPick == 0) ? 3 : 2;
+            node.setAttribute(attributeToPick);
+            for(int i = 0; i < numBranches; i++){
+                ArrayList<int[]> subInstance = partitionInstance(node.getInstances(),node.getAttribute(), i);
+                DNode child = new DNode(node,subInstance,0,0);
+                node.setChild(child);
+                buildTree(child);
+            }
+        }
+    }
+
+    public ArrayList<int[]> partitionInstance(ArrayList<int[]> instance, int attribute, int branch){
+        ArrayList<int[]> subInstance = new ArrayList<>();
+        switch(attribute){
+            case ATTR_GHOST: subInstance = partitionGhostInstance(instance, branch);
+                break;
+            case ATTR_PILL: subInstance = partitionPillInstance(instance, branch);
+                break;
+            case ATTR_POWER: subInstance = partitionPowerInstance(instance, branch);
+                break;
+        }
+
+        return subInstance;
+    }
+
+    public ArrayList<int[]> partitionGhostInstance(ArrayList<int[]> instance, int branch){
+        ArrayList<int[]> subInstance = new ArrayList<>();
+        if(branch == 0){
+            for(int[] set : instance){
+                if(set[0] <= 10){
+                    subInstance.add(set);
+                }
+            }
+        }
+        if(branch == 1){
+            for(int[] set : instance){
+                if(10 < set[0] && set[0] < 25){
+                    subInstance.add(set);
+                }
+            }
+        }
+        else{
+            for(int[] set : instance){
+                if(set[0] >= 25){
+                    subInstance.add(set);
+                }
+            }
+        }
+
+        return subInstance;
+    }
+
+    public ArrayList<int[]> partitionPillInstance(ArrayList<int[]> instance, int branch){
+        ArrayList<int[]> subInstance = new ArrayList<>();
+        if(branch == 0){
+            for(int[] set : instance){
+                if(set[1] <= 25){
+                    subInstance.add(set);
+                }
+            }
+        }
+        else{
+            for(int[] set : instance){
+                if(set[0] > 25){
+                    subInstance.add(set);
+                }
+            }
+        }
+        return subInstance;
+    }
+    public ArrayList<int[]> partitionPowerInstance(ArrayList<int[]> instance, int branch){
+        ArrayList<int[]> subInstance = new ArrayList<>();
+        if(branch == 0){
+            for(int[] set : instance){
+                if(set[2] <= 15){
+                    subInstance.add(set);
+                }
+            }
+        }
+        else{
+            for(int[] set : instance){
+                if(set[0] > 15){
+                    subInstance.add(set);
+                }
+            }
+        }
+        return subInstance;
+    }
+
+    // computes information gain for all attributes and returns the best attribute
+    public int chooseAttribute(ArrayList<int[]> instance){
+        int bestAttribute = 0;
+        double bestInfoGain = 0;
+        for(int i = 0; i < NUMATTRIBUTES; i++){
+            double infoGain;
+            infoGain = informationGain(instance, i);
+            if(bestInfoGain < infoGain){
+                bestInfoGain = infoGain;
+                bestAttribute = i;
+            }
+        }
+        return bestAttribute;
+    }
+
+    // iterates through instance to check if all target values are identical
+    public boolean checkLeaf(DNode node){
+        // base case
+        ArrayList<int[]> nodeInstance = node.getInstances();
+        int targetVal = nodeInstance.get(0)[3];
+        for(int[] set: nodeInstance){
+            if(targetVal != set[3]){
+                return false;
+            }
+        }
+        return true;
     }
 
     public double[][] getCount(ArrayList<int[]> instance, int attribute){
@@ -133,7 +317,7 @@ public class ID3 extends Controller<MOVE> {
                 double count[][] = new double[2][2];
                 value = set[attribute];
                 classification = set[3];
-                if( value < 25){
+                if( value = 25){
                     if(classification == 0){
                         count[0][0]++;
                     }
@@ -155,7 +339,7 @@ public class ID3 extends Controller<MOVE> {
                 double count[][] = new double[2][2];
                 value = set[attribute];
                 classification = set[3];
-                if(value < 15){
+                if(value <= 15){
                     if(classification == 0){
                         count[0][0]++;
                     }
