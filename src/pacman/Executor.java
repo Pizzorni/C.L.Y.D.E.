@@ -639,8 +639,8 @@ public class Executor
     }
 
 	/**
-	 * Initial random seeding function used to generate weights for initial population. Numbers are
-	 * generated from the range [-1000, 1000] which is considerably more random than the mutation step
+	 * Initial random seeding function used to generate weights for initial population in evolutionary algos.
+	 * Numbers are generated from the range [-1000, 1000] which is considerably more random than the mutation step
 	 * in order to ensure a varied initial population. Hopefully will prevent getting stuck on local
 	 * optimums. Will potentially be modified by simulated annealing in part 2.
 	 *
