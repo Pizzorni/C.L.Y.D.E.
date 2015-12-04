@@ -15,7 +15,7 @@ we learn in class.
 * Informed Search
   * ~~Hill Climber~~
   * ~~A*~~
-  * Simmulated Annealing
+  * Simulated Annealing
 * ~~Evolutionary Algorithms~~
   * ~~Evolution Strategy~~
   * ~~Genetic Algorithms~~
