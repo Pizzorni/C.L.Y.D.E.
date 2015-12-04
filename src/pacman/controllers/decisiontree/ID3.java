@@ -136,6 +136,7 @@ public class ID3 extends Controller<MOVE> {
             rootInstances.add(INSTANCES[i]);
         }
         rootNode.setInstances(rootInstances);
+        buildTree(rootNode);
     }
 
     /**
@@ -186,7 +187,7 @@ public class ID3 extends Controller<MOVE> {
             }
         }
         else{
-            if(closestPower <= 15){
+            if(closestPowerDist <= 15){
                 return traverseTree(node.getChildren().get(0));
             }
             else{
@@ -371,13 +372,17 @@ public class ID3 extends Controller<MOVE> {
     public boolean checkLeaf(DNode node){
         // base case
         ArrayList<int[]> nodeInstance = node.getInstances();
-        int targetVal = nodeInstance.get(0)[3];
-        for(int[] set: nodeInstance){
-            if(targetVal != set[3]){
-                return false;
-            }
+//        int targetVal = nodeInstance.get(0)[3];
+//        for(int[] set: nodeInstance){
+//            if(targetVal != set[3]){
+//                return false;
+//            }
+//        }
+        double entropy = entropyOnAttribute(nodeInstance, node.getAttribute());
+        if(entropy == 0){
+            return true;
         }
-        return true;
+        return false;
     }
 
     public double[][] getCount(ArrayList<int[]> instance, int attribute){
@@ -423,7 +428,7 @@ public class ID3 extends Controller<MOVE> {
                 double count[][] = new double[2][2];
                 value = set[attribute];
                 classification = set[3];
-                if( value = 25){
+                if( value == 25){
                     if(classification == 0){
                         count[0][0]++;
                     }
