@@ -1,37 +1,46 @@
 # C.L.Y.D.E.
 
 Final project for Artificial Intelligence, Fall 2015. Taught by Julian
-Togelius at NYU Poly. Created by Whitney Mulhern and Giorgio Pizzorni.
+Togelius at NYU ~~Poly~~ Tandon. Created by Whitney Mulhern, Giorgio Pizzorni, and Kunal Relia.
 
 ## Part 1
 Part 1 of the project will involve implementing every single algorithm
 we learn in class.
 
 ### TODO
-* Uninformed Search
-  * Breadth First
-  * Uniform Cost
-  * Depth First
-  * Depth Limited
-  * Iterative Deepening
+* ~~Uninformed Search~~
+  * ~~Breadth First~~
+  * ~~Depth First~~
+  * ~~Iterative Deepening~~
 * Informed Search
-  * Best First
-  * Greedy Best First
-  * A*
-  * Simmulated Annealing
+  * ~~Hill Climber~~
+  * ~~A*~~
+  * Simulated Annealing
+* ~~Evolutionary Algorithms~~
+  * ~~Evolution Strategy~~
+  * ~~Genetic Algorithms~~
+* ~~Adversarial Search~~
+  * ~~Alpha Beta Pruning~~
+* Supervised Learning
+  * ~~k-Nearest Neighbor~~
+  * Perceptron
+* Decision Trees
+ * ID3
+* Reinforcement Learning
+  * Q-learning
 
 ## Part 2
-Part 2 of this project will involve building a system of AIs named C.L.Y.D.E. 
+Part 2 of this project will involve setting off a Cambrian explosion in PacMan.
 
-* **C**almly
-* **L**olygagging
-* **Y**et
-* **D**estroying
-* **E**verything
+* **C**ambrianesque
+* **L**ife
+* **Y**erking
+* **D**arwinian
+* **E**xplosion
 
-In Pacman, Clyde is the shy orange ghost. He targets Pacman's tile if he is more than 8 blocks away. If he gets too close, he scurries away to his home corner. The current idea is to turn clyde into a killing machine by rewriting the other ghosts' AI so that they force pacman into Clyde's corner. Clyde will eventually get Pacman even though he doesn't want to.
+We will have six initially identical populations. They will all receive a different combination of (variance, temperature change). Variance will be either mutation, reproduction, or both. Temperature chance will be increasing or decreasing.
 
-Some are born great, some achieve greatness, and some have greatness thrust upon them.
+We will use simulated annealing to modify the randomness of our evolutionary algorithms. Half of the algorithms will become more random as time progresses, the other half will become less random. Each set of algorithms will implement just mutation, just crossover, or both.
 
-We will make Clyde great.
+We will then perform some rudimentary statistical analysis on performance, but more interestingly, in how they evolve. How differently will they evolve? Will they evolve consistently through multiple trials? How will they evolve in response to different ghost controllers?
   
