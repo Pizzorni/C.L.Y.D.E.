@@ -13,11 +13,14 @@ import java.util.Arrays;
 import java.util.PriorityQueue;
 
 import pacman.controllers.Controller;
+
+/** our import statements ***********/
 import pacman.controllers.supervised.*;
 import pacman.controllers.uninformed.*;;
 import pacman.controllers.evolution.*;
 import pacman.controllers.informed.*;
 import pacman.controllers.decisiontree.*;
+/**************************************/
 import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;
 import pacman.controllers.examples.AggressiveGhosts;
@@ -527,6 +530,30 @@ public class Executor {
         }
 
         return score - numPills - overPenalty;
+
+    }
+
+    private void cambrianExplosion(){
+        int numGen = 10;
+        int popSize = 10;
+        int initialPop = popSize;
+        ArrayList<EvolObj> initialPopulation = new ArrayList<>();
+        PriorityQueue<EvolObj> mutateOnlyPopulation = new PriorityQueue<>();
+        PriorityQueue<EvolObj> crossoverOnlyPopulation = new PriorityQueue<>();
+        PriorityQueue<EvolObj> mutateAndCrossoverPopulation = new PriorityQueue<>();
+
+        Game game = new Game(0);
+
+        // Seed initial population
+        for (int i = 0; i < initialPop; i++) {
+            EvolObj temp = new EvolObj(game.copy(), initialSeed(1000, -1000));
+            temp.setScore(0);
+            initialPopulation.add(temp);
+        }
+
+        //
+
+
 
     }
 
