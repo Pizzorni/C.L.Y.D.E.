@@ -10,7 +10,9 @@ import java.util.Random;
 import java.util.concurrent.*;
 
 /**
- * Created by giorgio on 12/4/15.
+ * This class run six different evolutionary algorithms concurrently to find out who will reign supreme. Currently
+ * supports a Mutation algorithm, a Crossover algorithm, and a Mutation and Crossover algorithm, all with and without
+ * simulated annealing
  */
 
 
@@ -22,7 +24,7 @@ public class CambrianExplosion {
     static final int RNMIN = -50;
     private int NUM_GEN;
     private int POP_SIZE;
-    private int INIT_XFACTOR;
+    private int INIT_XFACTOR; // used to add some oomp to the initial population optionally
     private int INIT_POP_SIZE;
     private double TEMPERATURE;
     private double REV_TEMPERATURE;
@@ -78,6 +80,7 @@ public class CambrianExplosion {
 
         ArrayList<Future> threads = new ArrayList<>();
         ExecutorService executor = Executors.newFixedThreadPool(6);
+        // Spawn threads to make things fast
         EvolThread mutateThread = new EvolThread(mutatePop, MUTATION, RNMAX, RNMIN, NUM_GEN, POP_SIZE,
                 INIT_POP_SIZE, 0, 0);
         EvolThread crossoverThread = new EvolThread(crossoverPop, CROSSOVER, RNMAX, RNMIN, NUM_GEN, POP_SIZE,
