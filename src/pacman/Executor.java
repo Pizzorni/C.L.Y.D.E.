@@ -63,18 +63,23 @@ public class Executor {
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
 
         //exec.runGame(new ID3(new StarterGhosts()), new StarterGhosts(), visual, delay);
-        CambrianExplosion boom = new CambrianExplosion(5, 10, 1);
-        boom.explode();
+        for(int i = 0; i < 10; i ++){
+            System.out.println("Trial: " + i);
+            CambrianExplosion boom = new CambrianExplosion(10, 10, 5);
+            boom.explode();
+        }
+
+
 
 
         ///*
         //run the game in asynchronous mode.
         // attemping to fine tune evolutionary computation parameters
         //  boolean visual = true;
-        int numGen = 5;
-        int popSize = 10;
-        double[] maxes = new double[8];
-        double[] avgs = new double[8];
+//        int numGen = 5;
+//        int popSize = 10;
+//        double[] maxes = new double[8];
+//        double[] avgs = new double[8];
 //		for(int i = 1; i < 5; i ++){
 //			double[] ret = exec.evolutionaryStrategy(numGen, popSize, (i * -250 ), (i * 250));
 //			maxes[i-1] = ret[0];
