@@ -3,14 +3,13 @@ package pacman.controllers.evolution;
 import pacman.controllers.Controller;
 import pacman.game.Game;
 
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.PriorityQueue;
 import java.util.Random;
 
-import static pacman.game.Constants.*;
-
-import java.util.ArrayList;
-import java.util.PriorityQueue;
+import static pacman.game.Constants.GHOST;
+import static pacman.game.Constants.MOVE;
 
 /**
  * This controller implements a simple evolutionary strategy. The strategy revolves around generating initially
@@ -54,22 +53,22 @@ public class EvolutionaryStrategy extends Controller<MOVE> {
         Random rn = new Random();
 
         // Seed the initial population with completely randomized move sequences.
-        for(int i = 0; i < populationSize; i++){
+        for (int i = 0; i < populationSize; i++) {
             Candidate temp = new Candidate(game.copy(), generateMoveSequence(20), 0);
             population.add(temp);
         }
 
         // Iterate number of generation times
-        for(int i = 0; i < numGenerations; i++){
+        for (int i = 0; i < numGenerations; i++) {
             // Iterate over current population
-            for(Candidate candidate : population){
+            for (Candidate candidate : population) {
                 Game curGame = game.copy();
                 candidate.setGame(curGame);
                 ArrayList<MOVE> actionSequence = candidate.getSequence();
                 // Execute action sequence
-                for(MOVE move : actionSequence){
+                for (MOVE move : actionSequence) {
                     // Advance more than once so move has time to execute
-                    for(int j = 0; j < 4; j++){
+                    for (int j = 0; j < 4; j++) {
                         curGame.advanceGame(move, spookies.getMove(curGame.copy(), -1));
                     }
                 }
@@ -82,14 +81,14 @@ public class EvolutionaryStrategy extends Controller<MOVE> {
             int newPopSize = 0;
             // Pick the 25% most fit of the population and reinsert them into the pool
             // also add them to list of mutation candidates
-            for(int j = 0; j < populationSize/4; j++){
+            for (int j = 0; j < populationSize / 4; j++) {
                 Candidate temp = resortedPop.remove();
                 population.add(temp);
                 mutatees.add(temp);
                 newPopSize++;
             }
             // Refill population with mutated copies of original population
-            while(newPopSize < populationSize){
+            while (newPopSize < populationSize) {
                 // Randomly select one of the top 25% to mutate
                 int index = rn.nextInt(mutatees.size());
                 Candidate willMutate = mutatees.get(index);
@@ -113,10 +112,10 @@ public class EvolutionaryStrategy extends Controller<MOVE> {
      * @return Returns a randomized action sequence
      */
 
-    public ArrayList<MOVE> generateMoveSequence(int length){
+    public ArrayList<MOVE> generateMoveSequence(int length) {
         ArrayList<MOVE> actionSeq = new ArrayList<>();
         Random rn = new Random();
-        for(int i = 0; i < length; i++){
+        for (int i = 0; i < length; i++) {
             int index = rn.nextInt(5);
             actionSeq.add(allMoves[index]);
         }
@@ -129,20 +128,20 @@ public class EvolutionaryStrategy extends Controller<MOVE> {
      * @param oldSeq The sequence to be randomly mutated
      * @return Returns a randomly mutated copy of the original action sequence
      */
-    public ArrayList<MOVE> mutateActionSequence(ArrayList<MOVE> oldSeq){
+    public ArrayList<MOVE> mutateActionSequence(ArrayList<MOVE> oldSeq) {
         ArrayList<MOVE> actionSeq = new ArrayList<>();
         Random rn = new Random();
-        for(int i = 0; i < oldSeq.size(); i++){
+        for (int i = 0; i < oldSeq.size(); i++) {
             // Flip a coin
             int mutate = rn.nextInt(1);
             // If heads, we mutate randomly
-            if(mutate == 1){
+            if (mutate == 1) {
                 int index = rn.nextInt(5);
                 MOVE newMove = allMoves[index];
                 actionSeq.add(newMove);
             }
             // If tails, we take the original move
-            else if(mutate == 0){
+            else if (mutate == 0) {
                 actionSeq.add(oldSeq.get(i));
             }
         }

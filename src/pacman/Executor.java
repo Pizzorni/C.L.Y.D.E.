@@ -1,31 +1,22 @@
 package pacman;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.Random;
-import java.util.PriorityQueue;
-
 import pacman.controllers.Controller;
-
-/** our import statements ***********/
-import pacman.controllers.uninformed.*;;
-import pacman.controllers.informed.*;
-import pacman.controllers.decisiontree.*;
-/**************************************/
 import pacman.controllers.HumanController;
-import pacman.controllers.examples.RandomGhosts;
-import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
+import pacman.controllers.informed.HillClimber;
 import pacman.game.Game;
 import pacman.game.GameView;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Random;
+
 import static pacman.game.Constants.*;
+
+/** our import statements ***********/
+;
+/**************************************/
 
 /**
  * This class may be used to execute the game in timed or un-timed modes, with or without
@@ -51,25 +42,23 @@ public class Executor {
 
         //run a game in synchronous mode: game waits until controllers respond.
         int delay = 5;
-       // exec.runGame(new RandomPacMan(), new RandomGhosts(), visual, delay);
+        // exec.runGame(new RandomPacMan(), new RandomGhosts(), visual, delay);
 
 
         //run the game in asynchronous mode.
 //		exec.runGameTimed(new IterDeepPacMan(new StarterGhosts()), new StarterGhosts(), visual);
 //		exec.runGameTimed(new KNearestPacMan(), new StarterGhosts(), visual);
-       // exec.runGameTimed(new BFS(new StarterGhosts()), new StarterGhosts(), visual);
+        // exec.runGameTimed(new BFS(new StarterGhosts()), new StarterGhosts(), visual);
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new DFSPacMan(new StarterGhosts()),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
 
         //exec.runGame(new ID3(new StarterGhosts()), new StarterGhosts(), visual, delay);
-        for(int i = 0; i < 10; i ++){
+        for (int i = 0; i < 10; i++) {
             System.out.println("Trial: " + i);
             CambrianExplosion boom = new CambrianExplosion(10, 10, 5);
             boom.explode();
         }
-
-
 
 
         ///*
@@ -140,7 +129,7 @@ public class Executor {
         //*/
 
 		/*
-		//run the game in asynchronous mode but advance as soon as both controllers are ready  - this is the mode of the competition.
+        //run the game in asynchronous mode but advance as soon as both controllers are ready  - this is the mode of the competition.
 		//time limit of DELAY ms still applies.
 		boolean visual=true;
 		boolean fixedTime=false;

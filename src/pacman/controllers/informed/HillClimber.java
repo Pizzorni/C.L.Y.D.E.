@@ -6,7 +6,8 @@ import pacman.game.Game;
 
 import java.util.EnumMap;
 
-import static pacman.game.Constants.*;
+import static pacman.game.Constants.GHOST;
+import static pacman.game.Constants.MOVE;
 
 /**
  * This controller implements a very simple Hill Climber. He evaluates every neighbor (move) around him
@@ -39,7 +40,7 @@ public class HillClimber extends Controller<MOVE> {
         Game[] games = new Game[5];
         MOVE[] moves = new MOVE[5];
         int moveIter = 0;
-        for(MOVE move: MOVE.values()){
+        for (MOVE move : MOVE.values()) {
             moves[moveIter] = move;
             moveIter++;
         }
@@ -51,14 +52,14 @@ public class HillClimber extends Controller<MOVE> {
         int tempScore;
 
         // Simulate all moves in current state
-        for(int i = 0; i < 5; i++){
+        for (int i = 0; i < 5; i++) {
             // Needs some extra time to properly compute all moves
-            for(int j = 0; j < 8; j++){
-                games[i].advanceGame(moves[i],spookies.getMove(games[i].copy(),-1));
+            for (int j = 0; j < 8; j++) {
+                games[i].advanceGame(moves[i], spookies.getMove(games[i].copy(), -1));
             }
             tempScore = games[i].getScore();
             // Find max score and which move was responsible for it
-            if(maxScore < tempScore) {
+            if (maxScore < tempScore) {
                 maxScore = tempScore;
                 maxIndex = i;
             }

@@ -25,7 +25,7 @@ class Organism implements Comparable<Organism> {
     }
 
     // Copy constructor
-    public Organism(Organism source){
+    public Organism(Organism source) {
         this.game = source.getGame().copy();
         this.fitness = source.getFitness();
         this.weights = source.getWeights();

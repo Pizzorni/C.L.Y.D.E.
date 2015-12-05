@@ -1,13 +1,13 @@
 package pacman;
 
+import pacman.controllers.examples.StarterGhosts;
+import pacman.controllers.informed.Astar;
+import pacman.game.Game;
+
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.concurrent.*;
-
-import pacman.controllers.examples.StarterGhosts;
-import pacman.controllers.informed.Astar;
-import pacman.game.Game;
 
 /**
  * Created by giorgio on 12/4/15.
@@ -62,7 +62,7 @@ public class CambrianExplosion {
 
         // Seed initial population
         for (int i = 0; i < initPopSize; i++) {
-            Organism temp = new Organism(game.copy(), initialSeed(1000, -1000), 0);
+            Organism temp = new Organism(game.copy(), initialSeed(100, -100), 0);
             initialPopulation.add(temp);
         }
 
@@ -98,7 +98,7 @@ public class CambrianExplosion {
         threads.add(executor.submit(crossoverThreadSim));
         threads.add(executor.submit(combinationThreadSim));
 
-      //  executor.shutdown();
+        //  executor.shutdown();
 
         try {
             executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
@@ -190,11 +190,11 @@ public class CambrianExplosion {
         Random rn = new Random();
         for (int i = 0; i < 8; i++) {
             coinFlip = rn.nextInt(2);
-            if(coinFlip == 1){
+            if (coinFlip == 1) {
                 p1Seed[i] = (rn.nextInt(rnmax - rnmin + 1) + rnmin) % rnmax;
             }
             coinFlip = rn.nextInt();
-            if(coinFlip == 1){
+            if (coinFlip == 1) {
                 p2Seed[i] = (rn.nextInt(rnmax - rnmin + 1) + rnmin) % rnmax;
             }
             newWeights[i] = (((p1Weights[i] * p1Seed[i])) + ((p2Weights[i] * p2Seed[i])) / 2);
@@ -303,7 +303,7 @@ public class CambrianExplosion {
                         Organism mutatee = new Organism(selectedPopulation.get(randIndex));
                         // A little pseudo simulated annealing. The more we mutate, the more/less effective it
                         // will be depending on whether temperature is increasing or decreasing.
-                        if(temp > 0){
+                        if (temp > 0) {
                             tempmax = rnmax + rn.nextInt((int) temp);
                             tempmin = rnmin + (-1 * rn.nextInt((int) temp));
                             temp *= (1 - deltaTemp);
@@ -355,7 +355,7 @@ public class CambrianExplosion {
                         Organism parentTwo = selectedPopulation.get(randIndexTwo);
                         // A little pseudo smmulated annealing. The more we reproduce, the more/less random it
                         // will be depending on whether temperature is increasing or decreasing.
-                        if(temp > 0){
+                        if (temp > 0) {
                             tempmax = rnmax + rn.nextInt((int) temp);
                             tempmin = rnmin + (-1 * rn.nextInt((int) temp));
                             temp *= (1 - deltaTemp);
@@ -386,7 +386,7 @@ public class CambrianExplosion {
                         // A little pseudo simulated annealing. The more we mutate, the more/less effective it
                         // will be depending on whether temperature is increasing or decreasing.
                         Organism mutatee = new Organism(selectedPopulation.get(randIndex));
-                        if(temp > 0){
+                        if (temp > 0) {
                             tempmax = rnmax + rn.nextInt((int) temp);
                             tempmin = rnmin + (-1 * rn.nextInt((int) temp));
                             temp *= (1 - deltaTemp);
@@ -412,7 +412,7 @@ public class CambrianExplosion {
                         Organism parentTwo = selectedPopulation.get(randIndexTwo);
                         // A little pseudo smmulated annealing. The more we reproduce, the more/less random it
                         // will be depending on whether temperature is increasing or decreasing.
-                        if(temp > 0){
+                        if (temp > 0) {
                             tempmax = rnmax + rn.nextInt((int) temp);
                             tempmin = rnmin + (-1 * rn.nextInt((int) temp));
                             temp *= (1 - deltaTemp);

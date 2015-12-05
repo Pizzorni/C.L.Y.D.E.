@@ -5,7 +5,6 @@ import pacman.controllers.Controller;
 import pacman.game.Game;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumMap;
 
 import static pacman.game.Constants.*;
@@ -24,7 +23,7 @@ public class ID3 extends Controller<MOVE> {
     private int closestPowerDist;
     private int spookiestSpookyDist;
     private int NUMATTRIBUTES = 3;
-    private int[] GHOST_CUTOFFS = {10,25};
+    private int[] GHOST_CUTOFFS = {10, 25};
     private int[] PILL_CUTOFFS = {25};
     private int[] POWER_DIST = {15};
     private final int ATTR_GHOST = 0;
@@ -35,7 +34,7 @@ public class ID3 extends Controller<MOVE> {
 
     // ghost, then pill, then power pill
     // 0 run, 1 target pill
-    private static int[][] INSTANCES= {
+    private static int[][] INSTANCES = {
             {5, 2, 5, 0},
             {5, 5, 5, 0},
             {5, 10, 5, 0},
@@ -121,7 +120,7 @@ public class ID3 extends Controller<MOVE> {
 //            {Integer.MAX_VALUE, 10, 1},
 //            {Integer.MAX_VALUE, 15, 1},
 //            {Integer.MAX_VALUE, 20, 1}
-                 };
+    };
 
 
     /**
@@ -133,7 +132,7 @@ public class ID3 extends Controller<MOVE> {
         this.spookies = spookies; // SPOOKIES
         this.rootNode = new DNode(null, null, 0, 0);
         ArrayList<int[]> rootInstances = new ArrayList<>();
-        for(int i = 0; i < INSTANCES.length; i++){
+        for (int i = 0; i < INSTANCES.length; i++) {
             rootInstances.add(INSTANCES[i]);
         }
         rootNode.setInstances(rootInstances);
@@ -141,7 +140,6 @@ public class ID3 extends Controller<MOVE> {
     }
 
     /**
-     *
      * @param game game to simulate on
      * @return Returns the move that gets it the highest score in its immediate vicinity
      */
@@ -152,68 +150,63 @@ public class ID3 extends Controller<MOVE> {
         int current = game.getPacmanCurrentNodeIndex();
         DNode decisionNode = traverseTree(rootNode);
         int decision = decisionNode.getDecision();
-        if(decision == 0) {
+        if (decision == 0) {
             return game.getNextMoveAwayFromTarget(current, game.getGhostCurrentNodeIndex(closestSpooky), DM.PATH);
-        }
-        else{
+        } else {
             return game.getNextMoveTowardsTarget(current, closestPill, DM.PATH);
         }
         // just in case
 
     }
 
-    public DNode traverseTree(DNode node){
+    public DNode traverseTree(DNode node) {
         int attribute = node.getAttribute();
         boolean baseCase = checkLeaf(node);
-        if(baseCase){
+        if (baseCase) {
             return node;
         }
 
-        if(attribute == ATTR_GHOST){
-            if(spookiestSpookyDist <= 10){
+        if (attribute == ATTR_GHOST) {
+            if (spookiestSpookyDist <= 10) {
                 return traverseTree(node.getChildren().get(0));
-            }
-            else if(10 < spookiestSpookyDist && spookiestSpookyDist < 25){
+            } else if (10 < spookiestSpookyDist && spookiestSpookyDist < 25) {
                 return traverseTree(node.getChildren().get(1));
-            }
-            else{
+            } else {
                 return traverseTree(node.getChildren().get(2));
             }
         }
 
-        if(attribute == ATTR_PILL){
-            if(closestPillDist <= 25){
+        if (attribute == ATTR_PILL) {
+            if (closestPillDist <= 25) {
                 return traverseTree(node.getChildren().get(0));
-            }
-            else{
+            } else {
                 return traverseTree(node.getChildren().get(1));
             }
-        }
-        else{
-            if(closestPowerDist <= 15){
+        } else {
+            if (closestPowerDist <= 15) {
                 return traverseTree(node.getChildren().get(0));
-            }
-            else{
+            } else {
                 return traverseTree(node.getChildren().get(1));
             }
         }
     }
 
     /**
-     * 	Evaluates game state
-     * 	Gets distance of the closest ghost and closest pill
+     * Evaluates game state
+     * Gets distance of the closest ghost and closest pill
+     *
      * @param game
      */
-    private void gatherData(Game game){
+    private void gatherData(Game game) {
         //get distance of nearest non-edible ghost and distance to nearest pill
 
-        int current=game.getPacmanCurrentNodeIndex();
+        int current = game.getPacmanCurrentNodeIndex();
 
         //Get distance from closest ghost
-        spookiestSpookyDist=Integer.MAX_VALUE;
+        spookiestSpookyDist = Integer.MAX_VALUE;
         int tmp;
         //NOTE: this for loop is adapted from the StarterPacMan controller
-        for(GHOST ghost : GHOST.values()) {
+        for (GHOST ghost : GHOST.values()) {
             if (game.getGhostEdibleTime(ghost) == 0 && game.getGhostLairTime(ghost) == 0) {
                 tmp = game.getShortestPathDistance(current, game.getGhostCurrentNodeIndex(ghost));
                 if (tmp < spookiestSpookyDist)
@@ -225,93 +218,89 @@ public class ID3 extends Controller<MOVE> {
 
         //Get distance of nearest pill (normal or power)
         //NOTE: this section is also adapted from the StarterPacMan controller
-        int[] pills=game.getPillIndices();
-        int[] powerPills=game.getPowerPillIndices();
+        int[] pills = game.getPillIndices();
+        int[] powerPills = game.getPowerPillIndices();
 
-        ArrayList<Integer> targetPills=new ArrayList<Integer>();
-        ArrayList<Integer> targetPower=new ArrayList<Integer>();
+        ArrayList<Integer> targetPills = new ArrayList<Integer>();
+        ArrayList<Integer> targetPower = new ArrayList<Integer>();
 
-        for(int i=0;i<pills.length;i++)					//check which pills are available
-            if(game.isPillStillAvailable(i))
+        for (int i = 0; i < pills.length; i++)                    //check which pills are available
+            if (game.isPillStillAvailable(i))
                 targetPills.add(pills[i]);
 
-        for(int i=0;i<powerPills.length;i++)			//check with power pills are available
-            if(game.isPowerPillStillAvailable(i))
+        for (int i = 0; i < powerPills.length; i++)            //check with power pills are available
+            if (game.isPowerPillStillAvailable(i))
                 targetPower.add(powerPills[i]);
 
-        int[] targetsArrayPills=new int[targetPills.size()];		//convert from ArrayList to array
-        int[] targetsArrayPower=new int[targetPower.size()];		//convert from ArrayList to array
+        int[] targetsArrayPills = new int[targetPills.size()];        //convert from ArrayList to array
+        int[] targetsArrayPower = new int[targetPower.size()];        //convert from ArrayList to array
 
-        for(int i=0;i<targetsArrayPills.length;i++)
-            targetsArrayPills[i]=targetPills.get(i);
+        for (int i = 0; i < targetsArrayPills.length; i++)
+            targetsArrayPills[i] = targetPills.get(i);
 
-        for(int i=0;i<targetsArrayPower.length;i++)
-            targetsArrayPower[i]=targetPower.get(i);
+        for (int i = 0; i < targetsArrayPower.length; i++)
+            targetsArrayPower[i] = targetPower.get(i);
 
         //return the next direction once the closest target has been identified
-        closestPill = game.getClosestNodeIndexFromNodeIndex(current,targetsArrayPills,DM.PATH);
+        closestPill = game.getClosestNodeIndexFromNodeIndex(current, targetsArrayPills, DM.PATH);
         closestPillDist = game.getShortestPathDistance(current, closestPill);
 
-        closestPower = game.getClosestNodeIndexFromNodeIndex(current,targetsArrayPower,DM.PATH);
+        closestPower = game.getClosestNodeIndexFromNodeIndex(current, targetsArrayPower, DM.PATH);
         closestPowerDist = game.getShortestPathDistance(current, closestPower);
 
         //info. gathered.
     }
 
 
-    public void buildTree(DNode node){
+    public void buildTree(DNode node) {
         int numBranches;
         boolean baseCase = checkLeaf(node);
-        if(baseCase){
+        if (baseCase) {
             node.setDecision(node.getInstances().get(0)[3]);
-        }
-        else{
+        } else {
             int attributeToPick = chooseAttribute(node.getInstances());
             numBranches = (attributeToPick == 0) ? 3 : 2;
             node.setAttribute(attributeToPick);
-          //  System.out.println("Attribute " + attributeToPick);
-            for(int i = 0; i < numBranches; i++){
-                ArrayList<int[]> subInstance = partitionInstance(node.getInstances(),attributeToPick, i);
-                DNode child = new DNode(node,subInstance,-1,-1);
+            //  System.out.println("Attribute " + attributeToPick);
+            for (int i = 0; i < numBranches; i++) {
+                ArrayList<int[]> subInstance = partitionInstance(node.getInstances(), attributeToPick, i);
+                DNode child = new DNode(node, subInstance, -1, -1);
                 node.setChild(child);
                 buildTree(child);
             }
         }
     }
 
-    public ArrayList<int[]> partitionInstance(ArrayList<int[]> instance, int attribute, int branch){
+    public ArrayList<int[]> partitionInstance(ArrayList<int[]> instance, int attribute, int branch) {
         ArrayList<int[]> subInstance;
-        if(attribute == ATTR_GHOST) {
+        if (attribute == ATTR_GHOST) {
             subInstance = partitionGhostInstance(instance, branch);
-        }
-        else if(attribute == ATTR_PILL) {
+        } else if (attribute == ATTR_PILL) {
             subInstance = partitionPillInstance(instance, branch);
-        }
-        else{
+        } else {
             subInstance = partitionPowerInstance(instance, branch);
         }
         return subInstance;
     }
 
-    public ArrayList<int[]> partitionGhostInstance(ArrayList<int[]> instance, int branch){
+    public ArrayList<int[]> partitionGhostInstance(ArrayList<int[]> instance, int branch) {
         ArrayList<int[]> subInstance = new ArrayList<>();
-        if(branch == 0){
-            for(int[] set : instance){
-                if(set[0] <= 10){
+        if (branch == 0) {
+            for (int[] set : instance) {
+                if (set[0] <= 10) {
                     subInstance.add(set);
                 }
             }
         }
-        if(branch == 1){
-            for(int[] set : instance){
-                if(10 < set[0] && set[0] < 25){
+        if (branch == 1) {
+            for (int[] set : instance) {
+                if (10 < set[0] && set[0] < 25) {
                     subInstance.add(set);
                 }
             }
-        }
-        else{
-            for(int[] set : instance){
-                if(set[0] >= 25){
+        } else {
+            for (int[] set : instance) {
+                if (set[0] >= 25) {
                     subInstance.add(set);
                 }
             }
@@ -320,36 +309,35 @@ public class ID3 extends Controller<MOVE> {
         return subInstance;
     }
 
-    public ArrayList<int[]> partitionPillInstance(ArrayList<int[]> instance, int branch){
+    public ArrayList<int[]> partitionPillInstance(ArrayList<int[]> instance, int branch) {
         ArrayList<int[]> subInstance = new ArrayList<>();
-        if(branch == 0){
-            for(int[] set : instance){
-                if(set[1] <= 25){
+        if (branch == 0) {
+            for (int[] set : instance) {
+                if (set[1] <= 25) {
                     subInstance.add(set);
                 }
             }
-        }
-        else{
-            for(int[] set : instance){
-                if(set[1] > 25){
+        } else {
+            for (int[] set : instance) {
+                if (set[1] > 25) {
                     subInstance.add(set);
                 }
             }
         }
         return subInstance;
     }
-    public ArrayList<int[]> partitionPowerInstance(ArrayList<int[]> instance, int branch){
+
+    public ArrayList<int[]> partitionPowerInstance(ArrayList<int[]> instance, int branch) {
         ArrayList<int[]> subInstance = new ArrayList<>();
-        if(branch == 0){
-            for(int[] set : instance){
-                if(set[2] <= 15){
+        if (branch == 0) {
+            for (int[] set : instance) {
+                if (set[2] <= 15) {
                     subInstance.add(set);
                 }
             }
-        }
-        else{
-            for(int[] set : instance){
-                if(set[2] > 15){
+        } else {
+            for (int[] set : instance) {
+                if (set[2] > 15) {
                     subInstance.add(set);
                 }
             }
@@ -358,14 +346,14 @@ public class ID3 extends Controller<MOVE> {
     }
 
     // computes information gain for all attributes and returns the best attribute
-    public int chooseAttribute(ArrayList<int[]> instance){
+    public int chooseAttribute(ArrayList<int[]> instance) {
         int bestAttribute = 0;
         double bestInfoGain = -1;
-        for(int i = 0; i < NUMATTRIBUTES; i++){
+        for (int i = 0; i < NUMATTRIBUTES; i++) {
             double infoGain;
             infoGain = informationGain(instance, i);
-          //  System.out.println(infoGain);
-            if(bestInfoGain < infoGain){
+            //  System.out.println(infoGain);
+            if (bestInfoGain < infoGain) {
                 bestInfoGain = infoGain;
                 bestAttribute = i;
             }
@@ -374,15 +362,15 @@ public class ID3 extends Controller<MOVE> {
     }
 
     // iterates through instance to check if all target values are identical
-    public boolean checkLeaf(DNode node){
+    public boolean checkLeaf(DNode node) {
         // base case
         ArrayList<int[]> nodeInstance = node.getInstances();
         int targetVal = nodeInstance.get(0)[3];
         int count = 0;
-        for(int[] set: nodeInstance){
+        for (int[] set : nodeInstance) {
             count++;
-          //  System.out.println(Arrays.toString(set) + " count: " + count);
-            if(targetVal != set[3]){
+            //  System.out.println(Arrays.toString(set) + " count: " + count);
+            if (targetVal != set[3]) {
                 return false;
             }
         }
@@ -393,7 +381,7 @@ public class ID3 extends Controller<MOVE> {
         return true;
     }
 
-    public double[][] getCount(ArrayList<int[]> instance, int attribute){
+    public double[][] getCount(ArrayList<int[]> instance, int attribute) {
         // first index
         // 0 --> negative
         // 1 --> positive
@@ -402,97 +390,86 @@ public class ID3 extends Controller<MOVE> {
         int value;
         int classification;
         double count[][] = new double[2][3];
-        for(int i = 0; i < instance.size(); i++){
-          //  System.out.println(instance.get(i)[attribute]);
-            if(attribute == ATTR_GHOST){
+        for (int i = 0; i < instance.size(); i++) {
+            //  System.out.println(instance.get(i)[attribute]);
+            if (attribute == ATTR_GHOST) {
                 value = instance.get(i)[attribute];
 //                System.out.println("instance " + Arrays.toString(instance.get(i)) + " i: " + i);
                 classification = instance.get(i)[3];
-              //  System.out.println("Value: " + value + " Classification: " + classification);
-                if(value <= 10){
-                    if(classification == 0){
+                //  System.out.println("Value: " + value + " Classification: " + classification);
+                if (value <= 10) {
+                    if (classification == 0) {
                         count[0][0]++;
-                    }
-                    else if (classification == 1){
+                    } else if (classification == 1) {
                         count[0][1]++;
                     }
-                }
-                else if (10 < value && value < 25){
-                    if(classification == 0){
+                } else if (10 < value && value < 25) {
+                    if (classification == 0) {
                         count[0][1]++;
-                    }
-                    else if (classification == 1){
+                    } else if (classification == 1) {
                         count[1][1]++;
                     }
-                }
-                else{
-                    if(classification == 0){
+                } else {
+                    if (classification == 0) {
                         count[0][2]++;
-                    }
-                    else if (classification == 1){
+                    } else if (classification == 1) {
                         count[1][2]++;
                     }
                 }
-              //  System.out.println(Arrays.toString(count[0]));
-               // return count;
+                //  System.out.println(Arrays.toString(count[0]));
+                // return count;
             }
-            if(attribute == ATTR_PILL){
+            if (attribute == ATTR_PILL) {
                 value = instance.get(i)[attribute];
                 classification = instance.get(i)[3];
-                if( value == 25){
-                    if(classification == 0){
+                if (value == 25) {
+                    if (classification == 0) {
                         count[0][0]++;
-                    }
-                    else if (classification == 1){
+                    } else if (classification == 1) {
                         count[1][0]++;
                     }
-                }
-                else{
-                    if(classification == 0){
+                } else {
+                    if (classification == 0) {
                         count[0][1]++;
-                    }
-                    else if (classification == 1){
+                    } else if (classification == 1) {
                         count[1][1]++;
                     }
                 }
-             //   return count;
+                //   return count;
             }
-            if(attribute == ATTR_POWER){
+            if (attribute == ATTR_POWER) {
                 value = instance.get(i)[attribute];
                 classification = instance.get(i)[3];
-                if(value <= 15){
-                    if(classification == 0){
+                if (value <= 15) {
+                    if (classification == 0) {
                         count[0][0]++;
-                    }
-                    else if (classification == 1){
+                    } else if (classification == 1) {
                         count[1][0]++;
                     }
-                }
-                else{
-                    if(classification == 0){
+                } else {
+                    if (classification == 0) {
                         count[0][1]++;
-                    }
-                    else if (classification == 1){
+                    } else if (classification == 1) {
                         count[1][1]++;
                     }
                 }
-             //   return count;
+                //   return count;
             }
         }
         //System.out.println(Arrays.toString(count[0]));
         return count;
     }
 
-    public double entropy(double posCount, double negCount){
+    public double entropy(double posCount, double negCount) {
         double size = posCount + negCount;
-        if(size == 0){
+        if (size == 0) {
             return 0;
         }
         System.out.println(negCount);
-        double posProb = posCount/size;
-        double negProb = negCount/size;
-        double entropy = (-1 * posProb * (Math.log(posProb)/Math.log(2))) - (negProb * (Math.log(negProb)/Math.log(2)));
-      //  System.out.println("retentropy: " + entropy);
+        double posProb = posCount / size;
+        double negProb = negCount / size;
+        double entropy = (-1 * posProb * (Math.log(posProb) / Math.log(2))) - (negProb * (Math.log(negProb) / Math.log(2)));
+        //  System.out.println("retentropy: " + entropy);
         return entropy;
 
     }
@@ -500,12 +477,12 @@ public class ID3 extends Controller<MOVE> {
     /*
      * computes entropy for a specific attribute given an instance
      */
-    public double entropyOnAttribute(ArrayList<int[]> instance, int attribute){
+    public double entropyOnAttribute(ArrayList<int[]> instance, int attribute) {
         double[][] attributeCount = getCount(instance, attribute);
         double entropy;
         double totalPos = 0;
         double totalNeg = 0;
-        for(int i = 0; i < attributeCount[0].length; i++){
+        for (int i = 0; i < attributeCount[0].length; i++) {
             totalPos += attributeCount[1][i];
             totalNeg += attributeCount[0][i];
             System.out.println("totPos: " + totalPos + "totNeg: " + totalNeg);
@@ -519,23 +496,23 @@ public class ID3 extends Controller<MOVE> {
     /*
      *   computes entropy after partitioning instance based of attribute
      */
-    public double entropyOnPartition(ArrayList<int[]> instance, int attribute){
+    public double entropyOnPartition(ArrayList<int[]> instance, int attribute) {
         double[][] count = getCount(instance, attribute);
-      //  System.out.println(Arrays.toString(count[0]));
+        //  System.out.println(Arrays.toString(count[0]));
         double entropy = 0;
         double temptropy;
         double countSum;
-        for(int i = 0; i < count[0].length; i++){
-          //  System.out.println(count[1][i]);
+        for (int i = 0; i < count[0].length; i++) {
+            //  System.out.println(count[1][i]);
             temptropy = entropy(count[0][i], count[1][i]);
-         //   System.out.println(temptropy);
+            //   System.out.println(temptropy);
             countSum = count[0][i] + count[1][i];
-            entropy += temptropy * (countSum/instance.size());
+            entropy += temptropy * (countSum / instance.size());
         }
         return entropy;
     }
 
-    public double informationGain(ArrayList<int[]> instance, int attribute){
+    public double informationGain(ArrayList<int[]> instance, int attribute) {
         double entropy = entropyOnAttribute(instance, attribute);
         double entropyPartition = entropyOnPartition(instance, attribute);
         return entropy - entropyPartition;

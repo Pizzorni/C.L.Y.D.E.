@@ -1,5 +1,5 @@
 package pacman.controllers.decisiontree;
-import java.awt.dnd.DnDConstants;
+
 import java.util.ArrayList;
 
 /**
@@ -33,6 +33,7 @@ public class DNode {
     public ArrayList<DNode> getChildren() {
         return children;
     }
+
     public int getDecision() {
         return decision;
     }
@@ -44,7 +45,8 @@ public class DNode {
     public void setChildren(ArrayList<DNode> children) {
         this.children = children;
     }
-    public void setChild(DNode child){
+
+    public void setChild(DNode child) {
         this.children.add(child);
     }
 
@@ -63,11 +65,6 @@ public class DNode {
     public void setAttribute(int attribute) {
         this.attribute = attribute;
     }
-
-
-
-
-
 
 
 }

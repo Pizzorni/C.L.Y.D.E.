@@ -3,14 +3,13 @@ package pacman.controllers.evolution;
 import pacman.controllers.Controller;
 import pacman.game.Game;
 
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.PriorityQueue;
 import java.util.Random;
 
-import static pacman.game.Constants.*;
-
-import java.util.ArrayList;
-import java.util.PriorityQueue;
+import static pacman.game.Constants.GHOST;
+import static pacman.game.Constants.MOVE;
 
 /**
  * This controller implements a simple genetic programming scheme. The strategy revolves around generating initially
@@ -58,21 +57,21 @@ public class GeneticProgramming extends Controller<MOVE> {
         Random rn = new Random();
 
         // Seed the initial population with completely randomized move sequences.
-        for(int i = 0; i < populationSize; i++){
+        for (int i = 0; i < populationSize; i++) {
             Candidate temp = new Candidate(game.copy(), generateMoveSequence(20), 0);
             population.add(temp);
         }
 
         // Iterate number of generation times
-        for(int i = 0; i < numGenerations; i++){
+        for (int i = 0; i < numGenerations; i++) {
             // Iterate over current population
-            for(Candidate candidate : population){
+            for (Candidate candidate : population) {
                 Game curGame = candidate.getGame();
                 ArrayList<MOVE> actionSequence = candidate.getSequence();
                 // Execute action sequence
-                for(MOVE move : actionSequence){
+                for (MOVE move : actionSequence) {
                     // Advance more than once so move has time to execute
-                    for(int j = 0; j < 4; j++){
+                    for (int j = 0; j < 4; j++) {
                         curGame.advanceGame(move, spookies.getMove(curGame.copy(), -1));
                     }
                 }
@@ -85,7 +84,7 @@ public class GeneticProgramming extends Controller<MOVE> {
             population.clear();
             int newPopSize = 0;
             // Pick the 25% most fit of the population and reinsert them into the pool.
-            for(int j = 0; j < populationSize/4; j++){
+            for (int j = 0; j < populationSize / 4; j++) {
                 Candidate temp = resortedPop.remove();
                 population.add(temp);
                 reproducers.add(temp);
@@ -94,7 +93,7 @@ public class GeneticProgramming extends Controller<MOVE> {
             }
             // Now pick another 25% randomly from the non-elite of the population to preserve
             // genetic diversity
-            for(int j = 0; j < populationSize/4; j++){
+            for (int j = 0; j < populationSize / 4; j++) {
                 int index = rn.nextInt(unfitPop.size());
                 Candidate temp = unfitPop.get(index);
                 population.add(temp);
@@ -102,12 +101,12 @@ public class GeneticProgramming extends Controller<MOVE> {
                 newPopSize++;
             }
             // Refill population with crossovers from remaining population
-            while(newPopSize < populationSize){
+            while (newPopSize < populationSize) {
                 // Randomly select two distinct members to reproduce
                 int indexOne = rn.nextInt(reproducers.size());
                 int indexTwo = rn.nextInt(reproducers.size());
                 // ensure distinctness amongst parents
-                while(indexTwo == indexOne){
+                while (indexTwo == indexOne) {
                     indexTwo = rn.nextInt(reproducers.size());
                 }
                 Candidate parentOne = reproducers.get(indexOne);
@@ -133,10 +132,10 @@ public class GeneticProgramming extends Controller<MOVE> {
      * @return Returns a randomized action sequence
      */
 
-    public ArrayList<MOVE> generateMoveSequence(int length){
+    public ArrayList<MOVE> generateMoveSequence(int length) {
         ArrayList<MOVE> actionSeq = new ArrayList<>();
         Random rn = new Random();
-        for(int i = 0; i < length; i++){
+        for (int i = 0; i < length; i++) {
             int index = rn.nextInt(5);
             actionSeq.add(allMoves[index]);
         }
@@ -151,16 +150,15 @@ public class GeneticProgramming extends Controller<MOVE> {
      * @param parentSeq2 The second parent sequence
      * @return Returns a crossed over action sequence generated from parents
      */
-    public ArrayList<MOVE> crossoverActionSequence(ArrayList<MOVE> parentSeq1, ArrayList<MOVE> parentSeq2){
+    public ArrayList<MOVE> crossoverActionSequence(ArrayList<MOVE> parentSeq1, ArrayList<MOVE> parentSeq2) {
         ArrayList<MOVE> actionSeq = new ArrayList<>();
         Random rn = new Random();
-        for(int i = 0; i < parentSeq1.size(); i ++){
+        for (int i = 0; i < parentSeq1.size(); i++) {
             // Flip a coin to see who gets to pass on their genese
             int parent = rn.nextInt(1);
-            if(parent == 0){
+            if (parent == 0) {
                 actionSeq.add(parentSeq1.get(i));
-            }
-            else{
+            } else {
                 actionSeq.add(parentSeq2.get(i));
             }
         }

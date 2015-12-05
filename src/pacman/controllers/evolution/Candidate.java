@@ -1,14 +1,13 @@
 package pacman.controllers.evolution;
+
 import pacman.game.Constants;
 import pacman.game.Game;
-
 
 import java.util.ArrayList;
 
 /**
  * This class is represents an element of the population. Used for both Evolutionary Strategy and Genetic Programming.
  * Stores information like game being simulated, fitness, and sequence of actions to be taken.
- *
  */
 class Candidate implements Comparable<Candidate> {
     private Game game;
@@ -35,27 +34,27 @@ class Candidate implements Comparable<Candidate> {
 
     // Setters and Getters
 
-    public void setGame(Game game){
+    public void setGame(Game game) {
         this.game = game;
     }
 
-    public void setSequence(ArrayList<Constants.MOVE> sequence){
+    public void setSequence(ArrayList<Constants.MOVE> sequence) {
         this.sequence = sequence;
     }
 
-    public void setFitness(int fitness){
+    public void setFitness(int fitness) {
         this.fitness = fitness;
     }
 
-    public Game getGame(){
+    public Game getGame() {
         return game;
     }
 
-    public ArrayList<Constants.MOVE> getSequence(){
+    public ArrayList<Constants.MOVE> getSequence() {
         return sequence;
     }
 
-    public int getFitness(){
+    public int getFitness() {
         return fitness;
     }
 }
