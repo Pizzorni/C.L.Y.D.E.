@@ -62,7 +62,7 @@ public class CambrianExplosion {
 
         // Seed initial population
         for (int i = 0; i < initPopSize; i++) {
-            Organism temp = new Organism(game.copy(), initialSeed(100, -100), 0);
+            Organism temp = new Organism(game.copy(), initialSeed(250, -250), 0);
             initialPopulation.add(temp);
         }
 
@@ -98,7 +98,7 @@ public class CambrianExplosion {
         threads.add(executor.submit(crossoverThreadSim));
         threads.add(executor.submit(combinationThreadSim));
 
-        //  executor.shutdown();
+        executor.shutdown();
 
         try {
             executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
@@ -193,11 +193,17 @@ public class CambrianExplosion {
             if (coinFlip == 1) {
                 p1Seed[i] = (rn.nextInt(rnmax - rnmin + 1) + rnmin) % rnmax;
             }
+            else{
+                p1Seed[i] = 1;
+            }
             coinFlip = rn.nextInt();
             if (coinFlip == 1) {
                 p2Seed[i] = (rn.nextInt(rnmax - rnmin + 1) + rnmin) % rnmax;
             }
-            newWeights[i] = (((p1Weights[i] * p1Seed[i])) + ((p2Weights[i] * p2Seed[i])) / 2);
+            else{
+                p2Seed[i] = 1;
+            }
+            newWeights[i] = (((p1Weights[i] + p1Seed[i])) + ((p2Weights[i] - p2Seed[i])) / 2);
         }
         return newWeights;
     }
@@ -261,6 +267,9 @@ public class CambrianExplosion {
             for (int genIter = 0; genIter < numGen; genIter++) {
                 sortedPopulation.clear();
                 selectedPopulation.clear();
+                if(temp > 0){
+                    temp *= (1 - deltaTemp);
+                }
                 for (Organism orgo : population) {
                     curGame = game.copy();
                     orgo.setGame(curGame);
@@ -305,8 +314,7 @@ public class CambrianExplosion {
                         // will be depending on whether temperature is increasing or decreasing.
                         if (temp > 0) {
                             tempmax = rnmax + rn.nextInt((int) temp);
-                            tempmin = rnmin + (-1 * rn.nextInt((int) temp));
-                            temp *= (1 - deltaTemp);
+                            tempmin = rnmin - rn.nextInt((int) temp);
                         }
                         int[] mutatedWeights = mutate(mutatee, tempmax, tempmin);
                         mutatee.setWeights(mutatedWeights);
@@ -357,8 +365,7 @@ public class CambrianExplosion {
                         // will be depending on whether temperature is increasing or decreasing.
                         if (temp > 0) {
                             tempmax = rnmax + rn.nextInt((int) temp);
-                            tempmin = rnmin + (-1 * rn.nextInt((int) temp));
-                            temp *= (1 - deltaTemp);
+                            tempmin = rnmin - rn.nextInt((int) temp);
                         }
                         int[] reproducedWeights = reproduce(parentOne, parentTwo, tempmax, tempmin);
                         Organism child = new Organism(game.copy(), reproducedWeights, 0);
@@ -388,8 +395,7 @@ public class CambrianExplosion {
                         Organism mutatee = new Organism(selectedPopulation.get(randIndex));
                         if (temp > 0) {
                             tempmax = rnmax + rn.nextInt((int) temp);
-                            tempmin = rnmin + (-1 * rn.nextInt((int) temp));
-                            temp *= (1 - deltaTemp);
+                            tempmin = rnmin - rn.nextInt((int) temp);
                         }
                         int[] mutatedWeights = mutate(mutatee, tempmax, tempmin);
                         mutatee.setWeights(mutatedWeights);
@@ -414,8 +420,7 @@ public class CambrianExplosion {
                         // will be depending on whether temperature is increasing or decreasing.
                         if (temp > 0) {
                             tempmax = rnmax + rn.nextInt((int) temp);
-                            tempmin = rnmin + (-1 * rn.nextInt((int) temp));
-                            temp *= (1 - deltaTemp);
+                            tempmin = rnmin -  rn.nextInt((int) temp);
                         }
                         int[] reproducedWeights = reproduce(parentOne, parentTwo, tempmax, tempmin);
                         Organism child = new Organism(game.copy(), reproducedWeights, 0);
