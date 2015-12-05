@@ -54,11 +54,27 @@ public class Executor {
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
 
         //exec.runGame(new ID3(new StarterGhosts()), new StarterGhosts(), visual, delay);
-        for (int i = 0; i < 10; i++) {
-            System.out.println("Trial: " + i);
-            CambrianExplosion boom = new CambrianExplosion(10, 10, 5);
-            boom.explode();
-        }
+
+        System.out.println("Trial: 1 Generations: 5 PopSize: 10");
+        CambrianExplosion boom1 = new CambrianExplosion(5, 10, 1);
+        boom1.explode();
+        System.out.println("Trial: 2 Generations: 5 PopSize: 20");
+        CambrianExplosion boom2 = new CambrianExplosion(5, 20, 1);
+        boom2.explode();
+        System.out.println("Trial: 3 Generations: 10 PopSize: 10");
+        CambrianExplosion boom3 = new CambrianExplosion(10, 10, 1);
+        boom3.explode();
+        System.out.println("Trial: 4 Generations: 10 PopSize: 20");
+        CambrianExplosion boom4 = new CambrianExplosion(10, 20, 1);
+        boom4.explode();
+        System.out.println("Trial: 5 Generations: 20 PopSize: 20");
+        CambrianExplosion boom5 = new CambrianExplosion(20, 20, 1);
+        boom5.explode();
+        System.out.println("Trial: 6 Generations: 100 PopSize: 20");
+        CambrianExplosion boom6 = new CambrianExplosion(100, 20, 1);
+        boom6.explode();
+
+
 
 
         ///*
